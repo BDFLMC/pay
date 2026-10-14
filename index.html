@@ -1,1 +1,529 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bharat Digital Finance - Secure Payment Portal</title>
+    <style>
+        :root {
+            --primary-purple: #7c3aed;
+            --dark-purple: #5b21b6;
+            --light-purple: #f3f0ff;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        html, body { width: 100%; height: 100%; background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
+        
+        .app-container { width: 100%; min-height: 100vh; background: #ffffff; display: flex; flex-direction: column; position: relative; }
+
+        /* App Header */
+        .app-header { background: var(--primary-purple); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header h1 { font-size: 16px; font-weight: 600; }
+        .header-icons { display: flex; gap: 15px; font-size: 18px; cursor: pointer; }
+
+        /* Screens */
+        .screen { display: none; flex-direction: column; flex: 1; padding: 15px; overflow-y: auto; }
+        .screen.active { display: flex; }
+
+        /* Setup / Edit Screen Styles */
+        .setup-card { background: white; padding: 18px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .setup-title { font-size: 15px; font-weight: 700; color: var(--dark-purple); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .form-row { display: flex; gap: 10px; }
+        .form-group { margin-bottom: 10px; flex: 1; }
+        .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
+        .form-control { width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; }
+        .form-control:focus { border-color: var(--primary-purple); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+        
+        .photo-upload-box { border: 2px dashed #cbd5e1; padding: 12px; text-align: center; border-radius: 12px; background: var(--light-purple); cursor: pointer; margin-top: 5px; position: relative; }
+        .photo-upload-box input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .preview-thumb { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-top: 6px; border: 2px solid var(--primary-purple); display: none; }
+
+        /* Dashboard Styles */
+        .profile-card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .profile-img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple); flex-shrink: 0; }
+        .profile-info h2 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .profile-info p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .section-card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
+        
+        .table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+        .table th, .table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        .table th { background: var(--light-purple); color: var(--dark-purple); font-weight: 600; }
+        .table td.amount { text-align: right; font-weight: 600; }
+
+        .fine-control { background: #fffbeb; border: 1px solid #fde68a; padding: 10px; border-radius: 10px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .toggle-btn { background: var(--warning-orange); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.2s; }
+        .toggle-btn.paid { background: var(--success-green); }
+
+        .warning-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 10px; border-radius: 10px; font-size: 12px; margin-top: 10px; display: none; }
+        .warning-box.active { display: block; }
+
+        /* UPI QR Section */
+        .qr-section { background: #fdf4ff; border: 1px solid #f0abfc; padding: 12px; border-radius: 12px; text-align: center; margin-top: 15px; }
+        .qr-box { background: white; padding: 10px; display: inline-block; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-top: 6px; }
+        .qr-box img { width: 130px; height: 130px; display: block; }
+        .timer-text { font-size: 12px; color: var(--danger-red); font-weight: 600; margin-top: 6px; }
+
+        /* Action Buttons */
+        .actions { margin-top: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 10px; }
+        .btn { width: 100%; padding: 13px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn-primary { background: var(--primary-purple); color: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+        .btn-primary:hover { background: var(--dark-purple); }
+        .btn-whatsapp { background: #25d366; color: white; }
+        .btn-sms { background: #0284c7; color: white; }
+        .btn-settings { background: #475569; color: white; font-size: 12px; padding: 8px; }
+
+        /* Popup & PIN Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+        .modal { background: white; width: 100%; max-width: 360px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: popUp 0.3s ease; }
+        .modal h3 { color: var(--dark-purple); font-size: 18px; margin-bottom: 12px; }
+        .modal p { color: var(--text-muted); font-size: 13px; margin-bottom: 15px; }
+        .modal button { background: var(--primary-purple); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+        
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header -->
+    <div class="app-header">
+        <h1 id="headerTitle">Bharat Digital Finance</h1>
+        <div class="header-icons" onclick="openPinPrompt()" title="Officer Admin">⚙️</div>
+    </div>
+
+    <!-- SCREEN 1: Setup & Fully Editable Details (PIN Protected) -->
+    <div id="screenSetup" class="screen">
+        <div class="setup-card">
+            <div class="setup-title">
+                <span>📋 Edit Customer & Financials</span>
+                <button class="btn-settings" onclick="openSettings()">⚙️ UPI Settings</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Customer Full Name</label>
+                <input type="text" id="inputName" class="form-control" value="SURJA KANTA THOKDAR">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Loan ID</label>
+                    <input type="text" id="inputLoanId" class="form-control" value="BDFL-PRINTER-UN19739">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="inputPhone" class="form-control" value="+91 9382049682">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="inputAddress" class="form-control" value="Village: Bishanpur, Kushida, HCPUR, Malda - 732140">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>EMI Amount (₹)</label>
+                    <input type="number" id="inputEmi" class="form-control" value="1568">
+                </div>
+                <div class="form-group">
+                    <label>Fine / Bounce Charge (₹)</label>
+                    <input type="number" id="inputFine" class="form-control" value="500">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Customer Photo (Upload / Capture)</label>
+                <div class="photo-upload-box">
+                    <span style="font-size: 12px; color: var(--dark-purple); font-weight: 600;">📷 Tap to upload customer photo</span>
+                    <input type="file" id="photoInput" accept="image/*" onchange="previewImage(event)">
+                </div>
+                <div style="text-align: center;">
+                    <img id="imagePreview" class="preview-thumb" alt="Customer Preview">
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="generateCustomerLink()">🔗 Generate Customer Payment Link</button>
+            <button class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="goToDashboard()">View Notice Dashboard ➔</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: Notice & Payment Dashboard (Customer Landed View) -->
+    <div id="screenDashboard" class="screen">
+        <!-- Customer Profile Card -->
+        <div class="profile-card">
+            <img id="dashImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Customer" class="profile-img">
+            <div class="profile-info">
+                <h2 id="dashName">SURJA KANTA THOKDAR</h2>
+                <p id="dashLoanId">Loan ID: BDFL-PRINTER-UN19739</p>
+                <p id="dashPhone">📞 +91 9382049682</p>
+                <p id="dashAddress" style="font-size: 11px;">📍 Village: Bishanpur, Kushida, HCPUR, Malda - 732140</p>
+            </div>
+        </div>
+
+        <!-- Dues Breakdown -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>Payment Breakdown</span>
+                <span style="color: var(--danger-red); font-size: 11px;">Overdue (Bounce)</span>
+            </div>
+            
+            <table class="table">
+                <tr>
+                    <th>Particulars</th>
+                    <th style="text-align: right;">Amount (INR)</th>
+                </tr>
+                <tr>
+                    <td>Overdue EMI</td>
+                    <td class="amount" id="dashEmiVal">₹1,568.00</td>
+                </tr>
+                <tr>
+                    <td>Bounce Charge / Fine</td>
+                    <td class="amount" id="fineDisplay">₹500.00</td>
+                </tr>
+                <tr style="background: var(--light-purple); font-weight: bold;">
+                    <td>Total Due</td>
+                    <td class="amount" id="totalDueDisplay">₹2,068.00</td>
+                </tr>
+            </table>
+
+            <!-- Fine Select / Deselect Toggle -->
+            <div class="fine-control">
+                <div>
+                    <strong>Fine Status:</strong> <span id="fineStatusText">Included (₹500)</span>
+                </div>
+                <button class="toggle-btn" id="toggleFineBtn" onclick="toggleFine()">Deselect Fine</button>
+            </div>
+
+            <div class="warning-box" id="cibilWarningBox">
+                ⚠️ <strong>Warning:</strong> Fine is deselected/unpaid. Partial payment without fine will result in CIBIL score degradation, late penalties, and legal action.
+            </div>
+
+            <!-- Dynamic UPI QR Code Section -->
+            <div class="qr-section">
+                <div style="font-size: 12px; font-weight: 700; color: var(--dark-purple);">Scan & Pay via UPI (UPI ID: <span id="displayUpiId">mobileand@nyes</span>)</div>
+                <div class="qr-box">
+                    <img id="dynamicUpiQr" src="" alt="UPI QR Code">
+                </div>
+                <div class="timer-text" id="qrTimer">QR Expires in: 10:00</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="recordPayment()">Record Payment & Mark Paid</button>
+            <a href="#" id="whatsappLink" class="btn btn-whatsapp" onclick="sendWhatsApp(event)">💬 Share Receipt via WhatsApp</a>
+            <a href="#" id="smsLink" class="btn btn-sms" onclick="sendSMS(event)">📲 Send Payment Link via SMS</a>
+            <button class="btn" style="background:#e2e8f0; color:var(--text-main); font-size:13px; padding:10px;" onclick="promptPinForSetup()">🔒 Officer Setup Login</button>
+        </div>
+    </div>
+
+    <!-- PIN PROMPT MODAL -->
+    <div class="modal-overlay" id="pinModal">
+        <div class="modal">
+            <h3>🔒 Officer Authentication</h3>
+            <p>Enter secret officer PIN to access setup & settings:</p>
+            <input type="password" id="pinInput" class="form-control" placeholder="Enter PIN" style="text-align: center; font-size: 18px; letter-spacing: 4px; margin-bottom: 10px;" maxlength="4">
+            <button onclick="verifyPin()">Verify PIN</button>
+            <button style="background: #64748b;" onclick="closePinPrompt()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL FOR UPI ID -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" style="text-align: left;">
+            <h3 style="color: var(--dark-purple); font-size: 18px; margin-bottom: 12px;">⚙️ System UPI Settings</h3>
+            <div class="form-group">
+                <label>Receiver UPI ID (Editable)</label>
+                <input type="text" id="inputUpiId" class="form-control" value="mobileand@nyes">
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">This UPI ID will be used for customer payments.</p>
+            <button onclick="saveSettings()">Save & Update</button>
+            <button style="background: #64748b;" onclick="closeSettings()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- LINK GENERATOR MODAL -->
+    <div class="modal-overlay" id="linkModal">
+        <div class="modal" style="text-align: left;">
+            <h3 style="color: var(--dark-purple);">🔗 Customer Payment Link</h3>
+            <p style="font-size: 12px;">Share this exclusive link with the customer. When opened, it directly opens their payment page and locks the setup menu:</p>
+            <input type="text" id="generatedLinkOutput" class="form-control" readonly style="background:#f1f5f9; margin-bottom:10px; font-size:11px;">
+            <button onclick="copyGeneratedLink()">📋 Copy Link</button>
+            <button style="background: #64748b;" onclick="closeLinkModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <h3 id="modalTitle">Payment Successful! 🎉</h3>
+            <p id="modalMsg">The EMI and fine have been successfully recorded.</p>
+            <button onclick="downloadPdfBill()">📥 Download PDF Bill</button>
+            <button style="background: #64748b;" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isFineSelected = true;
+    let baseEmi = 1568;
+    let fineAmount = 500;
+    let merchantUpiId = "mobileand@nyes"; // Default UPI ID set here
+    let uploadedImageSrc = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+    let countdownTimer = 600;
+    let timerInterval;
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('customer') === 'view') {
+            loadDashboardDirect();
+        } else {
+            openPinPrompt();
+        }
+    };
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageSrc = e.target.result;
+                const preview = document.getElementById('imagePreview');
+                preview.src = uploadedImageSrc;
+                preview.style.display = 'inline-block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function openPinPrompt() {
+        document.getElementById('pinInput').value = "";
+        document.getElementById('pinModal').style.display = 'flex';
+    }
+
+    function closePinPrompt() {
+        document.getElementById('pinModal').style.display = 'none';
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('customer') === 'view' && !document.getElementById('screenDashboard').classList.contains('active')) {
+            loadDashboardDirect();
+        }
+    }
+
+    function verifyPin() {
+        let enteredPin = document.getElementById('pinInput').value;
+        if (enteredPin === "9733") {
+            closePinPrompt();
+            goToSetup();
+        } else {
+            alert("Incorrect PIN! Access denied.");
+        }
+    }
+
+    function promptPinForSetup() {
+        openPinPrompt();
+    }
+
+    function goToSetup() {
+        document.getElementById('screenDashboard').classList.remove('active');
+        document.getElementById('screenSetup').classList.add('active');
+        document.getElementById('headerTitle').textContent = "Officer Setup & Loan Config";
+        clearInterval(timerInterval);
+    }
+
+    function goToDashboard() {
+        baseEmi = parseFloat(document.getElementById('inputEmi').value) || 0;
+        fineAmount = parseFloat(document.getElementById('inputFine').value) || 0;
+
+        document.getElementById('dashName').textContent = document.getElementById('inputName').value;
+        document.getElementById('dashLoanId').textContent = "Loan ID: " + document.getElementById('inputLoanId').value;
+        document.getElementById('dashPhone').textContent = "📞 " + document.getElementById('inputPhone').value;
+        document.getElementById('dashAddress').textContent = "📍 " + document.getElementById('inputAddress').value;
+        document.getElementById('dashImg').src = uploadedImageSrc;
+        document.getElementById('dashEmiVal').textContent = "₹" + baseEmi.toFixed(2);
+        
+        updateDisplayTotals();
+        updateUpiQr();
+        startCountdown();
+
+        document.getElementById('screenSetup').classList.remove('active');
+        document.getElementById('screenDashboard').classList.add('active');
+        document.getElementById('headerTitle').textContent = "Due Information (Notice)";
+        window.scrollTo(0,0);
+    }
+
+    function loadDashboardDirect() {
+        document.getElementById('dashEmiVal').textContent = "₹" + baseEmi.toFixed(2);
+        updateDisplayTotals();
+        updateUpiQr();
+        startCountdown();
+
+        document.getElementById('screenSetup').classList.remove('active');
+        document.getElementById('screenDashboard').classList.add('active');
+        document.getElementById('headerTitle').textContent = "Due Information (Notice)";
+    }
+
+    function generateCustomerLink() {
+        let currentUrl = window.location.href.split('?')[0];
+        let customerUrl = currentUrl + "?customer=view";
+        document.getElementById('generatedLinkOutput').value = customerUrl;
+        document.getElementById('linkModal').style.display = 'flex';
+    }
+
+    function closeLinkModal() {
+        document.getElementById('linkModal').style.display = 'none';
+    }
+
+    function copyGeneratedLink() {
+        let copyText = document.getElementById('generatedLinkOutput');
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("Customer payment link copied to clipboard!");
+    }
+
+    function openSettings() {
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function saveSettings() {
+        let newUpi = document.getElementById('inputUpiId').value.trim();
+        if (newUpi) {
+            merchantUpiId = newUpi;
+            document.getElementById('displayUpiId').textContent = merchantUpiId;
+            updateUpiQr();
+            alert("UPI ID updated successfully!");
+        }
+        closeSettings();
+    }
+
+    function updateUpiQr() {
+        let totalToPay = isFineSelected ? (baseEmi + fineAmount) : baseEmi;
+        let payeeName = "Bharat Digital Finance";
+        let loanId = document.getElementById('inputLoanId').value;
+        let upiString = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(payeeName)}&am=${totalToPay}.00&cu=INR&tn=LoanID_${loanId}`;
+        
+        document.getElementById('displayUpiId').textContent = merchantUpiId;
+        document.getElementById('dynamicUpiQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
+    }
+
+    function startCountdown() {
+        clearInterval(timerInterval);
+        countdownTimer = 600;
+        timerInterval = setInterval(() => {
+            let minutes = Math.floor(countdownTimer / 60);
+            let seconds = countdownTimer % 60;
+            document.getElementById('qrTimer').textContent = `QR Expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (countdownTimer > 0) {
+                countdownTimer--;
+            } else {
+                clearInterval(timerInterval);
+                document.getElementById('qrTimer').textContent = "QR Expired! Refresh to regenerate.";
+            }
+        }, 1000);
+    }
+
+    function toggleFine() {
+        isFineSelected = !isFineSelected;
+        const btn = document.getElementById('toggleFineBtn');
+        const fineText = document.getElementById('fineStatusText');
+        const warningBox = document.getElementById('cibilWarningBox');
+        
+        if (isFineSelected) {
+            btn.textContent = "Deselect Fine";
+            btn.classList.remove('paid');
+            fineText.textContent = "Included (₹" + fineAmount + ")";
+            warningBox.classList.remove('active');
+        } else {
+            btn.textContent = "Select Fine";
+            btn.classList.add('paid');
+            fineText.textContent = "Deselected (₹0 due)";
+            warningBox.classList.add('active');
+        }
+        updateDisplayTotals();
+        updateUpiQr();
+    }
+
+    function updateDisplayTotals() {
+        const fineDisplay = document.getElementById('fineDisplay');
+        const totalDisplay = document.getElementById('totalDueDisplay');
+
+        if (isFineSelected) {
+            fineDisplay.textContent = "₹" + fineAmount.toFixed(2);
+            totalDisplay.textContent = "₹" + (baseEmi + fineAmount).toFixed(2);
+        } else {
+            fineDisplay.textContent = "₹0.00 (Deselected)";
+            totalDisplay.textContent = "₹" + baseEmi.toFixed(2);
+        }
+    }
+
+    function recordPayment() {
+        let totalToPay = isFineSelected ? (baseEmi + fineAmount) : baseEmi;
+        let name = document.getElementById('inputName').value;
+        let loanId = document.getElementById('inputLoanId').value;
+        let modalTitle = document.getElementById('modalTitle');
+        let modalMsg = document.getElementById('modalMsg');
+
+        if (!isFineSelected && fineAmount > 0) {
+            modalTitle.textContent = "⚠️ CIBIL Warning Alert";
+            modalTitle.className = "warn";
+            modalMsg.textContent = `Payment recorded without fine (₹${totalToPay}). Warning: Unpaid fine/overdue charges will negatively impact CIBIL score and may trigger legal proceedings for loan ID ${loanId}.`;
+        } else {
+            modalTitle.textContent = "Payment Successful! 🎉";
+            modalTitle.className = "";
+            modalMsg.textContent = `Successfully recorded full payment of ₹${totalToPay}.00 for ${name} (Loan: ${loanId}). Receipt is ready.`;
+        }
+        document.getElementById('successModal').style.display = 'flex';
+    }
+
+    function sendWhatsApp(e) {
+        e.preventDefault();
+        let totalToPay = isFineSelected ? (baseEmi + fineAmount) : baseEmi;
+        let phoneClean = document.getElementById('inputPhone').value.replace(/\s+/g, '');
+        let name = document.getElementById('inputName').value;
+        let loanId = document.getElementById('inputLoanId').value;
+        
+        let message = `*BHARAT DIGITAL FINANCE - PAYMENT RECEIPT*\n\nDear ${name},\nYour payment of *₹${totalToPay}.00* for Loan ID: *${loanId}* has been successfully processed via UPI ID: *${merchantUpiId}*.\n${!isFineSelected && fineAmount > 0 ? '⚠️ Note: Fine is pending. Please clear to protect your CIBIL score.' : '✅ Account is fully regularized. Thank you!'}\n\nRegards,\nCollections Department`;
+        
+        window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function sendSMS(e) {
+        e.preventDefault();
+        let totalToPay = isFineSelected ? (baseEmi + fineAmount) : baseEmi;
+        let phoneClean = document.getElementById('inputPhone').value.replace(/\s+/g, '');
+        let name = document.getElementById('inputName').value;
+        let loanId = document.getElementById('inputLoanId').value;
+        
+        let message = `Dear ${name}, BDFL loan (${loanId}) payment of ₹${totalToPay}.00 processed. ${!isFineSelected && fineAmount > 0 ? 'WARNING: Unpaid fine will affect your CIBIL score.' : 'Thank you!'}`;
+        
+        window.location.href = `sms:${phoneClean}?body=${encodeURIComponent(message)}`;
+    }
+
+    function downloadPdfBill() {
+        alert("PDF Bill downloaded successfully! (Simulated download for Bharat Digital Finance)");
+        closeModal();
+    }
+
+    function closeModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
