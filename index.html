@@ -673,7 +673,6 @@
             }
             showDashboardScreen();
         } else {
-            // Normal load: start in Customer Locked view until Officer unlocks via PIN, or show header button
             renderAdminAll();
             showDashboardScreen();
         }
@@ -1140,7 +1139,7 @@
             let subText = isPaid ? `Collected on ${inst.collectedDate || inst.date}` : (isBounce ? `In Progress (Bounce + ₹500 Fine)` : `Scheduled`);
             let utrText = isPaid ? `UTR: ${inst.utr}` : (isBounce ? `Overdue - Payment Required` : ``);
 
-            // Notice: The "Mark Paid" button has class "officer-only" so the customer NEVER sees it!
+            // The "Mark Paid" button has class "officer-only" so the customer NEVER sees it
             const card = document.createElement('div');
             card.className = `inst-item ${isBounce ? 'bounce-highlight' : ''}`;
             card.innerHTML = `
@@ -1222,7 +1221,7 @@
     }
 
     function openMarkPaymentModal(defaultIdx = null) {
-        if (isCustomerLockedMode) return; // Extra guard so customer can never trigger this
+        if (isCustomerLockedMode) return;
         const c = getActiveCustomer();
         const selectEl = document.getElementById('selectInstToPay');
         selectEl.innerHTML = "";
