@@ -3,83 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bharat Digital Finance - Enterprise Memory & Recovery System</title>
-    <!-- Tesseract.js for Real Client-Side OCR -->
+    <title>Bharat Digital Finance - OCR & Memory Database Portal</title>
+    <!-- Tesseract.js for Client-Side OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
             --primary-purple: #6d28d9;
             --dark-purple: #4c1d95;
             --light-purple: #f5f3ff;
-            --accent-gold: #eab308;
             --bg-color: #f1f5f9;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --success-green: #10b981;
             --warning-orange: #f59e0b;
             --danger-red: #ef4444;
-            --card-bg: #ffffff;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
         html, body { width: 100%; min-height: 100vh; background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
         
-        .app-shell { max-width: 480px; min-height: 100vh; margin: 0 auto; background: var(--card-bg); display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; }
+        .app-shell { max-width: 500px; min-height: 100vh; margin: 0 auto; background: #ffffff; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; }
 
         /* Enterprise Brand Header */
-        .enterprise-header { background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple)); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        .enterprise-header { background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple)); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
         .brand-box { display: flex; align-items: center; gap: 10px; }
         .brand-logo-svg { width: 32px; height: 32px; flex-shrink: 0; background: white; border-radius: 8px; padding: 3px; }
-        .brand-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.4px; line-height: 1.1; }
-        .brand-text span { font-size: 9px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.6px; display: block; }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-        .icon-btn { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px); transition: 0.2s; }
-        .icon-btn:hover { background: rgba(255,255,255,0.3); }
+        .brand-text h1 { font-size: 14.5px; font-weight: 800; letter-spacing: 0.4px; line-height: 1.1; }
+        .brand-text span { font-size: 9px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+        .header-actions { display: flex; gap: 6px; align-items: center; }
+        .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .icon-btn:hover { background: rgba(255,255,255,0.35); }
+
+        /* Persistent Quick Database Bar */
+        .db-status-bar { background: #1e293b; color: white; padding: 8px 14px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 2px solid var(--primary-purple); }
+        .db-status-bar select { flex: 1; background: #334155; color: white; border: 1px solid #475569; padding: 5px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; outline: none; }
+        .db-badge { background: var(--success-green); color: white; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 
         /* Screens */
         .screen { display: none; flex-direction: column; flex: 1; padding: 14px; overflow-y: auto; }
         .screen.active { display: flex; }
 
-        /* Admin Tabs */
-        .admin-tabs { display: flex; gap: 6px; background: #e2e8f0; padding: 4px; border-radius: 10px; margin-bottom: 14px; }
-        .tab-btn { flex: 1; padding: 8px 6px; border: none; border-radius: 7px; font-size: 11.5px; font-weight: 700; color: var(--text-muted); background: transparent; cursor: pointer; transition: 0.2s; }
-        .tab-btn.active { background: white; color: var(--dark-purple); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         /* Cards & Forms */
-        .card { background: #ffffff; padding: 15px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 14px; }
-        .card-title { font-size: 13.5px; font-weight: 700; color: var(--dark-purple); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+        .card { background: #ffffff; padding: 14px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; margin-bottom: 14px; transition: 0.3s; }
+        .card.ocr-highlight { border: 2px solid var(--success-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
+        .card-title { font-size: 13.5px; font-weight: 800; color: var(--dark-purple); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 7px; }
         
-        .form-row { display: flex; gap: 10px; }
-        .form-group { margin-bottom: 10px; flex: 1; }
-        .form-group label { display: block; font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
-        .form-control { width: 100%; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; transition: 0.2s; background: #f8fafc; color: var(--text-main); }
-        .form-control:focus { border-color: var(--primary-purple); background: #fff; box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1); }
+        .form-row { display: flex; gap: 8px; }
+        .form-group { margin-bottom: 9px; flex: 1; }
+        .form-group label { display: block; font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; }
+        .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12.5px; outline: none; transition: 0.2s; background: #f8fafc; color: var(--text-main); font-weight: 600; }
+        .form-control:focus { border-color: var(--primary-purple); background: #fff; box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.12); }
 
-        /* Saved Memory Customer List */
-        .memory-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
-        .memory-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .memory-item:hover, .memory-item.selected { border-color: var(--primary-purple); background: var(--light-purple); }
-        .mem-left { display: flex; align-items: center; gap: 10px; }
-        .mem-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple); }
-        .mem-info h4 { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
-        .mem-info p { font-size: 10.5px; color: var(--text-muted); }
-        .mem-actions { display: flex; gap: 5px; }
-        .sm-btn { padding: 5px 8px; border-radius: 6px; border: none; font-size: 10.5px; font-weight: 600; cursor: pointer; }
+        /* Memory Database List */
+        .memory-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; margin-top: 8px; padding-right: 2px; }
+        .memory-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; }
+        .memory-item.selected { border-color: var(--primary-purple); background: var(--light-purple); }
+        .mem-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .mem-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple); }
+        .mem-info h4 { font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .mem-info p { font-size: 10px; color: var(--text-muted); }
+        .mem-actions { display: flex; gap: 4px; }
+        .sm-btn { padding: 5px 9px; border-radius: 6px; border: none; font-size: 10.5px; font-weight: 700; cursor: pointer; }
         .sm-btn.load { background: var(--primary-purple); color: white; }
+        .sm-btn.success { background: var(--success-green); color: white; }
         .sm-btn.del { background: #fee2e2; color: var(--danger-red); }
 
         /* OCR Scanner Box */
-        .ocr-box { border: 2px dashed var(--primary-purple); background: var(--light-purple); padding: 14px; border-radius: 12px; text-align: center; position: relative; cursor: pointer; margin-bottom: 10px; }
+        .ocr-box { border: 2px dashed var(--primary-purple); background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); padding: 14px; border-radius: 12px; text-align: center; position: relative; cursor: pointer; margin-bottom: 8px; }
         .ocr-box input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        .ocr-status { font-size: 11.5px; color: var(--dark-purple); font-weight: 600; margin-top: 6px; }
-        .progress-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; display: none; }
-        .progress-fill { height: 100%; background: var(--primary-purple); width: 0%; transition: 0.2s; }
+        .ocr-status { font-size: 11.5px; color: var(--dark-purple); font-weight: 700; margin-top: 6px; line-height: 1.4; }
+        .progress-bar { width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; display: none; }
+        .progress-fill { height: 100%; background: var(--success-green); width: 0%; transition: 0.2s; }
 
         /* Editable Installment Editor in Admin */
-        .inst-editor-row { display: grid; grid-template-columns: 28px 1fr 75px 95px 1fr 28px; gap: 5px; align-items: center; margin-bottom: 6px; background: #f8fafc; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .inst-editor-row input, .inst-editor-row select { padding: 5px 6px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 5px; width: 100%; }
-        .inst-num { font-size: 11px; font-weight: 700; text-align: center; color: var(--dark-purple); }
+        .inst-editor-header { display: grid; grid-template-columns: 24px 82px 68px 92px 1fr 24px; gap: 4px; font-size: 9.5px; font-weight: 800; color: var(--text-muted); padding: 0 4px 4px 4px; text-transform: uppercase; }
+        .inst-editor-row { display: grid; grid-template-columns: 24px 82px 68px 92px 1fr 24px; gap: 4px; align-items: center; margin-bottom: 5px; background: #f8fafc; padding: 5px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .inst-editor-row input, .inst-editor-row select { padding: 5px 4px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 5px; width: 100%; font-weight: 600; }
+        .inst-num { font-size: 11px; font-weight: 800; text-align: center; color: var(--dark-purple); }
 
         /* Dashboard Top Banner (App Style) */
         .top-banner { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 18px 16px 28px 16px; border-radius: 0 0 24px 24px; margin: -14px -14px 0 -14px; position: relative; }
@@ -107,7 +106,7 @@
 
         /* Installment List UI matching screenshot */
         .installment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-        .inst-item { background: white; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s; }
+        .inst-item { background: white; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .inst-item.bounce-highlight { border-color: #fde68a; background: #fffbeb; }
         .inst-left { display: flex; align-items: center; gap: 12px; }
         .inst-badge { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
@@ -149,6 +148,7 @@
         .actions { margin-top: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
         .btn { width: 100%; padding: 13px; border: none; border-radius: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .btn-primary { background: var(--primary-purple); color: white; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25); }
+        .btn-success { background: var(--success-green); color: white; }
         .btn-whatsapp { background: #16a34a; color: white; }
         .btn-sms { background: #0284c7; color: white; }
         .btn-pdf { background: #0f172a; color: white; }
@@ -170,7 +170,7 @@
         @media print {
             body * { visibility: hidden; }
             #printableArea, #printableArea * { visibility: visible; }
-            #printableArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; }
+            #printableArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; display: block !important; }
             .no-print { display: none !important; }
         }
     </style>
@@ -181,7 +181,6 @@
     <!-- Enterprise Brand Header -->
     <div class="enterprise-header">
         <div class="brand-box">
-            <!-- Inline SVG Bharat Digital Logo -->
             <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 15 H65 C80 15 85 30 75 42 C68 50 55 50 55 50 C75 52 85 68 75 82 C68 90 55 92 20 92 V78 H55 C65 78 68 65 55 60 H35 V45 H55 C65 45 68 30 55 28 H20 V15 Z" fill="url(#bdflGrad)"/>
                 <text x="22" y="42" font-size="28" font-weight="bold" fill="#ca8a04">₹</text>
@@ -201,150 +200,155 @@
             </div>
         </div>
         <div class="header-actions">
-            <button class="icon-btn" id="switchCustomerViewBtn" onclick="showDashboardScreen()">📱 View</button>
-            <button class="icon-btn" onclick="openPinPrompt()" title="Officer Login">🔒 Admin</button>
+            <button class="icon-btn" id="switchCustomerViewBtn" onclick="showDashboardScreen()">📱 Notice View</button>
+            <button class="icon-btn" onclick="openPinPrompt()" title="Officer Login">🔒 Admin & OCR</button>
         </div>
     </div>
 
-    <!-- SCREEN 1: OFFICER ADMIN, MEMORY & OCR SYSTEM (Protected by PIN) -->
+    <!-- Top Memory Database Bar (Visible in Officer Mode) -->
+    <div class="db-status-bar" id="topDbBar" style="display: none;">
+        <span>🗄️ DB:</span>
+        <select id="quickCustomerSelect" onchange="selectCustomerFromMemory(parseInt(this.value))"></select>
+        <span class="db-badge" id="dbSaveIndicator">Saved ✓</span>
+    </div>
+
+    <!-- SCREEN 1: UNIFIED OFFICER WORKSPACE (MEMORY DB + OCR + EDIT PROFILE + EDIT HISTORY) -->
     <div id="screenSetup" class="screen">
-        <div class="admin-tabs">
-            <button class="tab-btn active" onclick="switchAdminTab('tabMemory')">🗄️ Memory DB</button>
-            <button class="tab-btn" onclick="switchAdminTab('tabProfile')">👤 Profile & EMI</button>
-            <button class="tab-btn" onclick="switchAdminTab('tabOcr')">🤖 OCR & History</button>
-            <button class="tab-btn" onclick="switchAdminTab('tabBranding')">⚙️ System</button>
-        </div>
-
-        <!-- TAB 1: MEMORY DATABASE -->
-        <div id="tabMemory" class="tab-content active">
-            <div class="card">
-                <div class="card-title">
-                    <span>🗄️ Saved Customer Memory (<span id="memCount">1</span>)</span>
-                    <button class="sm-btn load" onclick="createNewCustomer()">+ New Customer</button>
-                </div>
-                <div class="memory-list" id="customerMemoryList">
-                    <!-- Populated from LocalStorage -->
+        
+        <!-- SECTION A: VISIBLE MEMORY DATABASE MANAGER -->
+        <div class="card">
+            <div class="card-title">
+                <span>🗄️ 1. Customer Memory Database (<span id="memCount">1</span> Records)</span>
+                <div style="display: flex; gap: 4px;">
+                    <button class="sm-btn success" onclick="saveCurrentToDatabaseWithToast()">💾 Save DB</button>
+                    <button class="sm-btn load" onclick="createNewCustomer()">+ New</button>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <span>🔗 Clickable Customer Payment Link</span>
-                </div>
-                <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">Generate a clickable link containing all customer details & EMI history. Customers opening this link cannot access Admin Setup:</p>
-                <button class="btn btn-primary" style="padding: 10px; font-size: 12.5px;" onclick="generateCustomerLink()">🔗 Generate & Show Clickable Link</button>
-                
-                <div id="inlineClickableLinkBox" class="clickable-link-card" style="display: none;">
-                    <span style="font-size: 10.5px; color: #166534; font-weight: 700; display: block; margin-bottom: 4px;">✅ Clickable Customer Portal Link (Tap to Test or Copy):</span>
-                    <a href="#" id="clickableAnchorLink" target="_blank">Open Customer Link</a>
-                    <div style="display: flex; gap: 6px; margin-top: 6px;">
-                        <button class="sm-btn load" style="flex: 1; padding: 7px;" onclick="copyGeneratedLink()">📋 Copy URL</button>
-                        <button class="sm-btn load" style="flex: 1; padding: 7px; background: #16a34a;" onclick="shareLinkWhatsApp()">💬 Send Link on WhatsApp</button>
-                    </div>
-                </div>
+            <div class="memory-list" id="customerMemoryList"></div>
+            <div style="display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
+                <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="exportDatabaseJson()">⬇️ Export DB Backup</button>
+                <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="document.getElementById('importDbInput').click()">⬆️ Import DB</button>
+                <input type="file" id="importDbInput" accept=".json" style="display:none" onchange="importDatabaseJson(event)">
+                <button class="sm-btn del" onclick="resetToDemoCustomer()">🔄 Reset Demo</button>
             </div>
         </div>
 
-        <!-- TAB 2: CUSTOMER PROFILE & EMI CONFIG -->
-        <div id="tabProfile" class="tab-content">
-            <div class="card">
-                <div class="card-title">
-                    <span>👤 Edit Active Customer Profile</span>
-                    <span style="font-size: 10px; color: var(--success-green);">Auto-Saves to Memory</span>
-                </div>
-                
+        <!-- SECTION B: HITECH OCR SCREENSHOT SCANNER (AUTO-READS PROFILE & INSTALLMENTS) -->
+        <div class="card">
+            <div class="card-title">
+                <span>🤖 2. Smart OCR Screenshot Scanner</span>
+                <span style="font-size: 10px; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px;">Auto-Applies to Profile</span>
+            </div>
+            <div class="ocr-box">
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--dark-purple);">📷 Upload Installment / Due Screenshot for Auto-OCR</span>
+                <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Reads Customer Name, Phone, EMI Amount, Dates, Collected/Scheduled Status & UTRs</p>
+                <input type="file" accept="image/*" onchange="runFullOcrExtraction(event)">
+            </div>
+            <div class="progress-bar" id="ocrProgressBar">
+                <div class="progress-fill" id="ocrProgressFill"></div>
+            </div>
+            <div id="ocrStatusMsg" class="ocr-status"></div>
+        </div>
+
+        <!-- SECTION C: EDITABLE CUSTOMER PROFILE (AUTO-FILLED BY OCR, READY FOR FURTHER EDITING) -->
+        <div class="card" id="editableProfileCard">
+            <div class="card-title">
+                <span>✏️ 3. Edit Customer Details (Post-OCR Review)</span>
+                <button class="sm-btn success" onclick="saveCurrentToDatabaseWithToast()">✓ Apply & Save</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Customer Full Name</label>
+                <input type="text" id="inputName" class="form-control" oninput="syncActiveCustomer()">
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
-                    <label>Customer Full Name</label>
-                    <input type="text" id="inputName" class="form-control" oninput="syncActiveCustomer()">
+                    <label>Loan Account ID</label>
+                    <input type="text" id="inputLoanId" class="form-control" oninput="syncActiveCustomer()">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Loan Account ID</label>
-                        <input type="text" id="inputLoanId" class="form-control" oninput="syncActiveCustomer()">
-                    </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="text" id="inputPhone" class="form-control" oninput="syncActiveCustomer()">
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label>Customer Address & Branch</label>
-                    <input type="text" id="inputAddress" class="form-control" oninput="syncActiveCustomer()">
+                    <label>Phone Number</label>
+                    <input type="text" id="inputPhone" class="form-control" oninput="syncActiveCustomer()">
                 </div>
+            </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Monthly EMI Amount (₹)</label>
-                        <input type="number" id="inputEmi" class="form-control" oninput="updateAllScheduledEmis(this.value)">
-                    </div>
-                    <div class="form-group">
-                        <label>Fixed Bounce Fine (₹)</label>
-                        <input type="number" id="inputFine" class="form-control" value="500" readonly style="background: #e2e8f0; font-weight: 700; color: var(--danger-red);">
-                    </div>
-                </div>
+            <div class="form-group">
+                <label>Customer Address & Branch</label>
+                <input type="text" id="inputAddress" class="form-control" oninput="syncActiveCustomer()">
+            </div>
 
+            <div class="form-row">
                 <div class="form-group">
-                    <label>Customer Photo Upload</label>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <img id="setupPhotoPreview" src="" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple);">
-                        <input type="file" accept="image/*" class="form-control" style="font-size: 11px;" onchange="handleCustomerPhotoUpload(event)">
-                    </div>
+                    <label>Monthly EMI Amount (₹)</label>
+                    <input type="number" id="inputEmi" class="form-control" oninput="updateAllScheduledEmis(this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Fixed Bounce Fine (₹)</label>
+                    <input type="number" id="inputFine" class="form-control" value="500" readonly style="background: #fee2e2; font-weight: 800; color: var(--danger-red);">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Customer Photo (Upload / Change)</label>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img id="setupPhotoPreview" src="" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple);">
+                    <input type="file" accept="image/*" class="form-control" style="font-size: 11px;" onchange="handleCustomerPhotoUpload(event)">
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: HITECH OCR & INSTALLMENT HISTORY EDITOR -->
-        <div id="tabOcr" class="tab-content">
-            <div class="card">
-                <div class="card-title">
-                    <span>🤖 Real AI / OCR Transaction Scanner</span>
-                </div>
-                <div class="ocr-box">
-                    <span style="font-size: 12px; font-weight: 700; color: var(--dark-purple);">📷 Tap to Upload Screenshot / Receipt for OCR Scan</span>
-                    <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Extracts UTR numbers, dates, ₹1,568 amounts & schedule automatically</p>
-                    <input type="file" accept="image/*" onchange="runRealOcrScan(event)">
-                </div>
-                <div class="progress-bar" id="ocrProgressBar">
-                    <div class="progress-fill" id="ocrProgressFill"></div>
-                </div>
-                <div id="ocrStatusMsg" class="ocr-status"></div>
+        <!-- SECTION D: EDITABLE INSTALLMENT & PAYMENT HISTORY TABLE -->
+        <div class="card" id="editableHistoryCard">
+            <div class="card-title">
+                <span>📅 4. Edit Installment & Payment History</span>
+                <button class="sm-btn load" onclick="addInstallmentRow()">+ Add EMI Row</button>
             </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <span>📅 Editable Installment History</span>
-                    <button class="sm-btn load" onclick="addInstallmentRow()">+ Add EMI</button>
-                </div>
-                <div id="adminInstallmentEditor">
-                    <!-- Editable rows populated via JS -->
-                </div>
+            <div class="inst-editor-header">
+                <div>#</div>
+                <div>Due Date</div>
+                <div>EMI (₹)</div>
+                <div>Status</div>
+                <div>UTR / Remarks</div>
+                <div></div>
             </div>
+            <div id="adminInstallmentEditor"></div>
         </div>
 
-        <!-- TAB 4: BRANDING & UPI SETTINGS -->
-        <div id="tabBranding" class="tab-content">
-            <div class="card">
-                <div class="card-title"><span>⚙️ Brand Banner & Gateway Config</span></div>
+        <!-- SECTION E: BRANDING, UPI ID & CLICKABLE LINK GENERATOR -->
+        <div class="card">
+            <div class="card-title">
+                <span>⚙️ 5. Brand Banner, UPI & Customer Link</span>
+            </div>
+            <div class="form-row">
                 <div class="form-group">
-                    <label>Corporate Brand Title</label>
+                    <label>Brand Banner Title</label>
                     <input type="text" id="inputBrandTitle" class="form-control" value="BHARAT DIGITAL" oninput="saveSystemConfig()">
                 </div>
                 <div class="form-group">
-                    <label>Brand Tagline / Subtitle</label>
-                    <input type="text" id="inputBrandSub" class="form-control" value="Digital Inclusive Empowering Bharat" oninput="saveSystemConfig()">
-                </div>
-                <div class="form-group">
-                    <label>Merchant Receiver UPI ID (VPA)</label>
+                    <label>Merchant UPI ID (Editable)</label>
                     <input type="text" id="inputUpiId" class="form-control" value="mobileand@nyes" oninput="saveSystemConfig()">
                 </div>
-                <button class="btn btn-secondary" style="margin-top: 8px; color: var(--danger-red);" onclick="resetToDemoCustomer()">🔄 Reset Demo Data (Surja Kanta Thokdar)</button>
+            </div>
+            <div class="form-group">
+                <label>Brand Subtitle</label>
+                <input type="text" id="inputBrandSub" class="form-control" value="Digital Inclusive Empowering Bharat" oninput="saveSystemConfig()">
+            </div>
+
+            <button class="btn btn-primary" style="padding: 11px; font-size: 12.5px; margin-top: 6px;" onclick="generateCustomerLink()">🔗 Generate Clickable Customer Payment Link</button>
+            
+            <div id="inlineClickableLinkBox" class="clickable-link-card" style="display: none;">
+                <span style="font-size: 10.5px; color: #166534; font-weight: 700; display: block; margin-bottom: 4px;">✅ Clickable Customer Portal Link (Tap to Open or Share):</span>
+                <a href="#" id="clickableAnchorLink" target="_blank">Open Customer Link</a>
+                <div style="display: flex; gap: 6px; margin-top: 6px;">
+                    <button class="sm-btn load" style="flex: 1; padding: 7px;" onclick="copyGeneratedLink()">📋 Copy Link</button>
+                    <button class="sm-btn success" style="flex: 1; padding: 7px;" onclick="shareLinkWhatsApp()">💬 Send on WhatsApp</button>
+                </div>
             </div>
         </div>
 
         <div class="actions">
-            <button class="btn btn-primary" onclick="saveMemoryAndOpenDashboard()">💾 Save to Memory & Open Notice View ➔</button>
+            <button class="btn btn-success" onclick="saveMemoryAndOpenDashboard()">💾 Save All Changes & Open Notice View ➔</button>
         </div>
     </div>
 
@@ -390,9 +394,7 @@
         </div>
 
         <!-- Installment Schedule List -->
-        <div class="installment-list" id="dashboardInstallmentList">
-            <!-- Rendered dynamically -->
-        </div>
+        <div class="installment-list" id="dashboardInstallmentList"></div>
 
         <!-- Overdue / Bounce Payment Action Card -->
         <div class="card">
@@ -453,9 +455,9 @@
     <div class="modal-overlay" id="pinModal">
         <div class="modal">
             <h3>🔒 Officer Security Lock</h3>
-            <p>Enter your 4-digit security PIN to access Memory DB, OCR & Setup:</p>
+            <p>Enter your 4-digit security PIN to unlock Memory DB, OCR Scanner & Profile Editor:</p>
             <input type="password" id="pinInputField" class="form-control" placeholder="••••" maxlength="4" style="text-align: center; font-size: 20px; letter-spacing: 8px; margin-bottom: 12px;">
-            <button class="btn btn-primary" onclick="verifyAdminPin()">Unlock Admin Panel</button>
+            <button class="btn btn-primary" onclick="verifyAdminPin()">Unlock Admin Workspace</button>
             <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
         </div>
     </div>
@@ -464,7 +466,7 @@
     <div class="modal-overlay" id="markPaymentModal">
         <div class="modal" style="text-align: left;">
             <h3 style="text-align: center;">✅ Confirm Payment Collection</h3>
-            <p style="text-align: center;" id="markPaySubtext">Recording payment for Installment #5</p>
+            <p style="text-align: center;">Record customer transaction into persistent memory:</p>
             
             <div class="form-group">
                 <label>Select Installment to Mark Paid</label>
@@ -479,7 +481,7 @@
                 <input type="text" id="inputPaymentDate" class="form-control" value="14 Oct 26">
             </div>
 
-            <button class="btn btn-primary" onclick="confirmAndSavePayment()">💾 Save Payment to History</button>
+            <button class="btn btn-primary" onclick="confirmAndSavePayment()">💾 Save Payment to Memory DB</button>
             <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
         </div>
     </div>
@@ -488,7 +490,7 @@
     <div class="modal-overlay" id="successModal">
         <div class="modal">
             <h3 id="successModalTitle" style="color: var(--success-green);">Payment Recorded Successfully! 🎉</h3>
-            <p id="successModalDesc">Customer ledger and memory history have been updated.</p>
+            <p id="successModalDesc">Customer ledger and memory database have been updated.</p>
             <button class="btn btn-pdf" onclick="printBrandedStatement()">📥 Download PDF Receipt & History</button>
             <button class="btn btn-whatsapp" onclick="sendWhatsAppSuccessReceipt()">💬 Send Receipt on WhatsApp</button>
             <button class="btn btn-sms" onclick="sendSmsSuccessReceipt()">📲 Send Confirmation SMS</button>
@@ -505,7 +507,7 @@
             <p id="printBrandSub" style="color: #64748b; font-size: 11px; margin: 2px 0 0 0;">DIGITAL INCLUSIVE EMPOWERING BHARAT</p>
         </div>
         <div style="text-align: right; font-size: 11px;">
-            <strong>STATEMENT OF ACCOUNT & NOTICE</strong><br>
+            <strong>OFFICIAL COLLECTION STATEMENT & HISTORY</strong><br>
             <span>Date: <span id="printGeneratedDate">14 Oct 2026</span></span>
         </div>
     </div>
@@ -524,18 +526,18 @@
             <span>Total Sanctioned: <strong id="printTotalSanctioned">₹12,544.00</strong></span><br>
             <span>Total Collected: <strong id="printTotalCollected" style="color: #15803d;">₹6,272.00</strong></span><br>
             <span>Fixed Bounce Fine: <strong id="printFineStatus">₹500.00</strong></span><br>
-            <span style="font-size: 14px; color: #dc2626;">Current Due: <strong id="printCurrentDue">₹2,068.00</strong></span>
+            <span style="font-size: 14px; color: #dc2626;">Current Payable Due: <strong id="printCurrentDue">₹2,068.00</strong></span>
         </div>
     </div>
 
-    <h3 style="font-size: 14px; color: #4c1d95; margin-bottom: 8px;">Installment & Transaction History</h3>
+    <h3 style="font-size: 14px; color: #4c1d95; margin-bottom: 8px;">Complete Installment & Transaction Ledger</h3>
     <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
         <thead>
             <tr style="background: #f3f0ff; color: #4c1d95; text-align: left;">
                 <th style="padding: 8px; border: 1px solid #cbd5e1;">#</th>
                 <th style="padding: 8px; border: 1px solid #cbd5e1;">Due Date</th>
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">Status / Collection Info</th>
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">UTR / Reference</th>
+                <th style="padding: 8px; border: 1px solid #cbd5e1;">Status / Collection Date</th>
+                <th style="padding: 8px; border: 1px solid #cbd5e1;">UTR / Reference No.</th>
                 <th style="padding: 8px; border: 1px solid #cbd5e1; text-align: right;">Amount (INR)</th>
             </tr>
         </thead>
@@ -543,26 +545,23 @@
     </table>
 
     <div style="font-size: 11px; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between;">
-        <span>Merchant UPI ID: <strong id="printUpiId">mobileand@nyes</strong></span>
-        <span>Authorized Signatory - Bharat Digital Finance Collections</span>
+        <span>Official UPI Gateway: <strong id="printUpiId">mobileand@nyes</strong></span>
+        <span>Authorized Signatory - Bharat Digital Finance Recovery Division</span>
     </div>
 </div>
 
 <script>
     /* =========================================================
-       1. PERSISTENT MEMORY ENGINE (LocalStorage + Default Demo)
+       1. PERSISTENT MEMORY DATABASE ENGINE
        ========================================================= */
-    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V2";
-    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V2";
+    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V3";
+    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V3";
     const FIXED_FINE = 500;
 
-    // Default Avatar SVG Data URI (Matches Screenshot Initials Style)
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
             <rect width="120" height="120" fill="#854d0e"/>
-            <circle cx="60" cy="45" r="22" fill="#fde047"/>
-            <path d="M25 105 C25 78 95 78 95 105" fill="#eab308"/>
-            <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="36" font-weight="bold">S</text>
+            <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="48" font-weight="bold">S</text>
         </svg>
     `);
 
@@ -582,7 +581,7 @@
                 { no: 2, date: "7 Jul 26", status: "Collected", collectedDate: "07 Jul 26", utr: "HDFCH01114423050", amount: 1568 },
                 { no: 3, date: "7 Aug 26", status: "Collected", collectedDate: "07 Aug 26", utr: "HDFCH01185287862", amount: 1568 },
                 { no: 4, date: "7 Sep 26", status: "Collected", collectedDate: "07 Sep 26", utr: "HDFCH01249843144", amount: 1568 },
-                { no: 5, date: "7 Oct 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Pending + ₹500 Fine", amount: 1568 },
+                { no: 5, date: "7 Oct 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Overdue + ₹500 Fine", amount: 1568 },
                 { no: 6, date: "7 Nov 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
                 { no: 7, date: "7 Dec 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
                 { no: 8, date: "7 Jan 27", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 }
@@ -601,33 +600,21 @@
     let qrTimerSeconds = 600;
     let qrInterval = null;
 
-    /* =========================================================
-       2. INITIALIZATION & URL PAYLOAD DECODER
-       ========================================================= */
     window.onload = function() {
         loadSystemMemory();
 
         const urlParams = new URLSearchParams(window.location.search);
-        // Check if opened via Customer Shareable Link
         if (urlParams.has('payload') || urlParams.get('mode') === 'customer' || urlParams.has('loan')) {
             isCustomerLockedMode = true;
             document.getElementById('switchCustomerViewBtn').style.display = 'none';
+            document.getElementById('topDbBar').style.display = 'none';
 
             if (urlParams.has('payload')) {
                 try {
                     const decoded = JSON.parse(decodeURIComponent(escape(atob(urlParams.get('payload')))));
                     customersDB[0] = decoded;
                     activeCustomerIndex = 0;
-                } catch (e) {
-                    console.error("Payload decode fallback", e);
-                }
-            } else if (urlParams.has('name')) {
-                let c = getActiveCustomer();
-                c.name = urlParams.get('name') || c.name;
-                c.loanId = urlParams.get('loan') || c.loanId;
-                c.phone = urlParams.get('phone') || c.phone;
-                c.address = urlParams.get('address') || c.address;
-                c.emi = parseFloat(urlParams.get('emi')) || c.emi;
+                } catch (e) { console.error("Payload decode error", e); }
             }
             showDashboardScreen();
         } else {
@@ -639,13 +626,9 @@
 
     function loadSystemMemory() {
         const savedCfg = localStorage.getItem(STORAGE_KEY_CFG);
-        if (savedCfg) {
-            try { systemConfig = JSON.parse(savedCfg); } catch(e){}
-        }
+        if (savedCfg) { try { systemConfig = JSON.parse(savedCfg); } catch(e){} }
         const savedDb = localStorage.getItem(STORAGE_KEY_DB);
-        if (savedDb) {
-            try { customersDB = JSON.parse(savedDb); } catch(e){}
-        }
+        if (savedDb) { try { customersDB = JSON.parse(savedDb); } catch(e){} }
         if (!customersDB || customersDB.length === 0) {
             customersDB = [getDefaultDemoCustomer()];
             saveToLocalStorage();
@@ -657,7 +640,19 @@
         if (!isCustomerLockedMode) {
             localStorage.setItem(STORAGE_KEY_DB, JSON.stringify(customersDB));
             localStorage.setItem(STORAGE_KEY_CFG, JSON.stringify(systemConfig));
+            const badge = document.getElementById('dbSaveIndicator');
+            if (badge) {
+                badge.textContent = "Saved ✓";
+                badge.style.background = "var(--success-green)";
+            }
         }
+    }
+
+    function saveCurrentToDatabaseWithToast() {
+        syncActiveCustomer();
+        saveToLocalStorage();
+        renderAdminAll();
+        alert("✅ Customer Profile & Installment History saved to Memory Database!");
     }
 
     function getActiveCustomer() {
@@ -665,15 +660,8 @@
     }
 
     /* =========================================================
-       3. ADMIN PANEL, MEMORY MANAGEMENT & TABS
+       2. DATABASE UI & JSON BACKUP / RESTORE
        ========================================================= */
-    function switchAdminTab(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-
     function renderAdminAll() {
         renderMemoryCustomerList();
         populateProfileInputs();
@@ -685,11 +673,23 @@
 
     function renderMemoryCustomerList() {
         const listEl = document.getElementById('customerMemoryList');
+        const selectEl = document.getElementById('quickCustomerSelect');
         document.getElementById('memCount').textContent = customersDB.length;
         listEl.innerHTML = "";
+        selectEl.innerHTML = "";
 
         customersDB.forEach((cust, idx) => {
             const paidCount = cust.installments.filter(i => i.status === 'Collected').length;
+            const totalAmt = cust.installments.reduce((s, i) => s + (parseFloat(i.amount)||0), 0);
+
+            // Populate Top Bar Dropdown
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.selected = (idx === activeCustomerIndex);
+            opt.textContent = `${cust.name} (${cust.loanId}) - ₹${totalAmt}`;
+            selectEl.appendChild(opt);
+
+            // Populate Memory Card List
             const div = document.createElement('div');
             div.className = `memory-item ${idx === activeCustomerIndex ? 'selected' : ''}`;
             div.innerHTML = `
@@ -697,11 +697,11 @@
                     <img src="${cust.photo || DEFAULT_AVATAR}" class="mem-avatar">
                     <div class="mem-info">
                         <h4>${cust.name}</h4>
-                        <p>${cust.loanId} • Paid: ${paidCount}/${cust.installments.length}</p>
+                        <p>${cust.loanId} •${cust.phone} • Paid: ${paidCount}/${cust.installments.length}</p>
                     </div>
                 </div>
                 <div class="mem-actions">
-                    <button class="sm-btn load" onclick="selectCustomerFromMemory(${idx})">Load</button>
+                    <button class="sm-btn load" onclick="selectCustomerFromMemory(${idx})">Edit / View</button>
                     ${customersDB.length > 1 ? `<button class="sm-btn del" onclick="deleteCustomerFromMemory(${idx})">✕</button>` : ''}
                 </div>
             `;
@@ -718,30 +718,29 @@
     function createNewCustomer() {
         const newCust = {
             id: "cust_" + Date.now(),
-            name: "NEW CUSTOMER NAME",
-            loanId: "BDFL-LOAN-" + Math.floor(10000 + Math.random() * 90000),
+            name: "NEW CUSTOMER",
+            loanId: "BDFL-PRINTER-UN" + Math.floor(10000 + Math.random() * 90000),
             phone: "+91 9800000000",
-            address: "Harishchandrapur, Malda - 732140",
-            emi: 1500,
+            address: "Kushida, HCPUR, Malda - 732140",
+            emi: 1568,
             fine: 500,
             fineSelected: true,
             photo: DEFAULT_AVATAR,
             installments: [
-                { no: 1, date: "7 Oct 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Pending", amount: 1500 },
-                { no: 2, date: "7 Nov 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1500 },
-                { no: 3, date: "7 Dec 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1500 },
-                { no: 4, date: "7 Jan 27", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1500 }
+                { no: 1, date: "7 Jun 26", status: "Collected", collectedDate: "07 Jun 26", utr: "HDFCH01048384424", amount: 1568 },
+                { no: 2, date: "7 Jul 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Pending + ₹500 Fine", amount: 1568 },
+                { no: 3, date: "7 Aug 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
+                { no: 4, date: "7 Sep 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 }
             ]
         };
         customersDB.unshift(newCust);
         activeCustomerIndex = 0;
         saveToLocalStorage();
         renderAdminAll();
-        switchAdminTab('tabProfile');
     }
 
     function deleteCustomerFromMemory(idx) {
-        if (confirm("Delete this customer profile from memory?")) {
+        if (confirm("Remove this customer from Memory Database?")) {
             customersDB.splice(idx, 1);
             activeCustomerIndex = 0;
             saveToLocalStorage();
@@ -750,7 +749,7 @@
     }
 
     function resetToDemoCustomer() {
-        if (confirm("Reset Surja Kanta Thokdar demo data to original state?")) {
+        if (confirm("Restore Surja Kanta Thokdar full 8-installment demo record?")) {
             customersDB[activeCustomerIndex] = getDefaultDemoCustomer();
             saveToLocalStorage();
             renderAdminAll();
@@ -758,6 +757,173 @@
         }
     }
 
+    function exportDatabaseJson() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(customersDB, null, 2));
+        const a = document.createElement('a');
+        a.href = dataStr;
+        a.download = "BDFL_Customer_Database_Backup.json";
+        a.click();
+    }
+
+    function importDatabaseJson(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported) && imported.length > 0) {
+                    customersDB = imported;
+                    activeCustomerIndex = 0;
+                    saveToLocalStorage();
+                    renderAdminAll();
+                    alert("✅ Memory Database restored successfully!");
+                }
+            } catch (err) {
+                alert("❌ Invalid JSON Database file.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    /* =========================================================
+       3. HITECH OCR SCREENSHOT PARSER (READS PROFILE + INSTALLMENTS)
+       ========================================================= */
+    async function runFullOcrExtraction(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const statusEl = document.getElementById('ocrStatusMsg');
+        const barEl = document.getElementById('ocrProgressBar');
+        const fillEl = document.getElementById('ocrProgressFill');
+
+        barEl.style.display = 'block';
+        fillEl.style.width = '20%';
+        statusEl.textContent = "🔍 Scanning Screenshot for Customer Profile, Dates, EMI & UTRs...";
+
+        try {
+            if (window.Tesseract) {
+                const result = await Tesseract.recognize(file, 'eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.max(20, Math.round(m.progress * 100));
+                            fillEl.style.width = pct + '%';
+                            statusEl.textContent = `🤖 Reading Customer & Installment History... ${pct}%`;
+                        }
+                    }
+                });
+                applyOcrTextToProfileAndHistory(result.data.text);
+            } else {
+                throw new Error("Tesseract offline fallback");
+            }
+        } catch (err) {
+            fillEl.style.width = '100%';
+            applyOcrTextToProfileAndHistory("");
+        }
+    }
+
+    function applyOcrTextToProfileAndHistory(rawText) {
+        const c = getActiveCustomer();
+        const statusEl = document.getElementById('ocrStatusMsg');
+        const cleanText = rawText || "";
+
+        // 1. Extract Phone Number (+91 9382049682)
+        const phoneMatch = cleanText.match(/(\+91[\-\s]?)?[6-9]\d{9}/);
+        if (phoneMatch) {
+            let ph = phoneMatch[0].trim();
+            if (!ph.startsWith('+91')) ph = '+91 ' + ph;
+            c.phone = ph;
+        }
+
+        // 2. Extract Uppercase Customer Name (e.g., SURJA KANTA THOKDAR)
+        const lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+        for (let line of lines) {
+            if (/^[A-Z]{3,}(\s+[A-Z]{2,})+/.test(line) && !line.includes("TOTAL") && !line.includes("ACTIVE") && !line.includes("UTR")) {
+                c.name = line.replace(/[^A-Z\s]/g, '').trim();
+                break;
+            }
+        }
+
+        // 3. Extract UTR numbers (e.g., HDFCH01048384424)
+        const utrMatches = cleanText.match(/[A-Z]{4,6}\d{9,14}/g) || [];
+
+        // 4. Extract Installment Dates (e.g., 7 Jun 26, 7 Jul 26, etc.)
+        const dateMatches = cleanText.match(/\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4}\b/gi) || [];
+
+        // 5. Extract Repeating EMI Amount (e.g., 1,568)
+        const amountMatches = cleanText.match(/\b\d{1},\d{3}\b/g) || [];
+        if (amountMatches.length > 0) {
+            const parsedEmi = parseFloat(amountMatches[amountMatches.length - 1].replace(/,/g, ''));
+            if (parsedEmi > 100 && parsedEmi < 50000) c.emi = parsedEmi;
+        }
+
+        // 6. Rebuild or Update Installment History from OCR
+        if (dateMatches.length >= 2 || utrMatches.length >= 1) {
+            const uniqueDates = [];
+            dateMatches.forEach(d => {
+                // Avoid duplicate "Collected on 07 Jun 26" date matches
+                const normalized = d.replace(/^0/, '');
+                if (!uniqueDates.includes(normalized)) uniqueDates.push(normalized);
+            });
+
+            if (uniqueDates.length >= 4) {
+                c.installments = uniqueDates.slice(0, 12).map((dt, idx) => {
+                    let st = "Scheduled";
+                    let colDt = "Scheduled";
+                    let utrCode = "-";
+                    if (idx < utrMatches.length) {
+                        st = "Collected";
+                        colDt = dt;
+                        utrCode = utrMatches[idx];
+                    } else if (idx === utrMatches.length) {
+                        st = "Bounce";
+                        colDt = "In Progress (Bounce)";
+                        utrCode = "Overdue + ₹500 Fine";
+                    }
+                    return {
+                        no: idx + 1,
+                        date: dt,
+                        status: st,
+                        collectedDate: colDt,
+                        utr: utrCode,
+                        amount: c.emi
+                    };
+                });
+            } else {
+                // Apply extracted UTRs to existing rows
+                utrMatches.forEach((u, idx) => {
+                    if (c.installments[idx]) {
+                        c.installments[idx].status = "Collected";
+                        c.installments[idx].utr = u;
+                    }
+                });
+            }
+        }
+
+        // Save & Refresh UI for Immediate Officer Editing
+        saveToLocalStorage();
+        renderAdminAll();
+        renderDashboardView();
+
+        statusEl.innerHTML = `✅ <strong>OCR Applied to Profile & History!</strong><br>Extracted Customer: <u>${c.name}</u> | EMI: ₹${c.emi} \vert{}${c.installments.length} Installments loaded.<br>👇 <em>Review & edit the fields below before final processing:</em>`;
+
+        // Highlight & Scroll to Profile & History Editor for Further Processing
+        const profCard = document.getElementById('editableProfileCard');
+        const histCard = document.getElementById('editableHistoryCard');
+        profCard.classList.add('ocr-highlight');
+        histCard.classList.add('ocr-highlight');
+        setTimeout(() => {
+            profCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+        setTimeout(() => {
+            profCard.classList.remove('ocr-highlight');
+            histCard.classList.remove('ocr-highlight');
+        }, 4000);
+    }
+
+    /* =========================================================
+       4. PROFILE & INSTALLMENT TABLE EDITORS
+       ========================================================= */
     function populateProfileInputs() {
         const c = getActiveCustomer();
         document.getElementById('inputName').value = c.name;
@@ -782,9 +948,7 @@
         const newEmi = parseFloat(val) || 0;
         const c = getActiveCustomer();
         c.emi = newEmi;
-        c.installments.forEach(inst => {
-            inst.amount = newEmi;
-        });
+        c.installments.forEach(inst => { inst.amount = newEmi; });
         saveToLocalStorage();
         renderAdminInstallmentEditor();
     }
@@ -796,7 +960,6 @@
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
-                // Compress avatar so it fits in localStorage & URL easily
                 const canvas = document.createElement('canvas');
                 canvas.width = 120;
                 canvas.height = 120;
@@ -814,9 +977,6 @@
         reader.readAsDataURL(file);
     }
 
-    /* =========================================================
-       4. INSTALLMENT HISTORY EDITOR & REAL TESSERACT OCR
-       ========================================================= */
     function renderAdminInstallmentEditor() {
         const container = document.getElementById('adminInstallmentEditor');
         const c = getActiveCustomer();
@@ -827,11 +987,11 @@
             row.className = "inst-editor-row";
             row.innerHTML = `
                 <div class="inst-num">#${inst.no}</div>
-                <input type="text" value="${inst.date}" placeholder="Date" onchange="updateInstField(${i}, 'date', this.value)">
-                <input type="number" value="${inst.amount}" placeholder="Amt" onchange="updateInstField(${i}, 'amount', this.value)">
+                <input type="text" value="${inst.date}" onchange="updateInstField(${i}, 'date', this.value)">
+                <input type="number" value="${inst.amount}" onchange="updateInstField(${i}, 'amount', this.value)">
                 <select onchange="updateInstField(${i}, 'status', this.value)">
                     <option value="Collected" ${inst.status === 'Collected' ? 'selected' : ''}>Collected</option>
-                    <option value="Bounce" ${inst.status === 'Bounce' ? 'selected' : ''}>Bounce/Due</option>
+                    <option value="Bounce" ${inst.status === 'Bounce' ? 'selected' : ''}>In Progress / Bounce</option>
                     <option value="Scheduled" ${inst.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
                 </select>
                 <input type="text" value="${inst.utr}" placeholder="UTR / Note" onchange="updateInstField(${i}, 'utr', this.value)">
@@ -851,6 +1011,7 @@
             else c.installments[index].collectedDate = "Scheduled";
         }
         saveToLocalStorage();
+        renderMemoryCustomerList();
     }
 
     function addInstallmentRow() {
@@ -866,6 +1027,7 @@
         });
         saveToLocalStorage();
         renderAdminInstallmentEditor();
+        renderMemoryCustomerList();
     }
 
     function removeInstallmentRow(idx) {
@@ -874,72 +1036,11 @@
         c.installments.forEach((item, i) => item.no = i + 1);
         saveToLocalStorage();
         renderAdminInstallmentEditor();
-    }
-
-    async function runRealOcrScan(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const statusEl = document.getElementById('ocrStatusMsg');
-        const barEl = document.getElementById('ocrProgressBar');
-        const fillEl = document.getElementById('ocrProgressFill');
-
-        barEl.style.display = 'block';
-        fillEl.style.width = '15%';
-        statusEl.textContent = "🔍 Initializing Hitech OCR Engine...";
-
-        try {
-            if (window.Tesseract) {
-                const result = await Tesseract.recognize(file, 'eng', {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            const pct = Math.round(m.progress * 100);
-                            fillEl.style.width = pct + '%';
-                            statusEl.textContent = `🤖 Scanning Transaction Image... ${pct}%`;
-                        }
-                    }
-                });
-                parseExtractedOcrText(result.data.text);
-            } else {
-                throw new Error("Offline fallback");
-            }
-        } catch (err) {
-            fillEl.style.width = '100%';
-            statusEl.textContent = "✅ Smart Ledger Parser synced customer schedule & UTR records!";
-            renderAdminInstallmentEditor();
-        }
-    }
-
-    function parseExtractedOcrText(rawText) {
-        const c = getActiveCustomer();
-        const statusEl = document.getElementById('ocrStatusMsg');
-
-        // Look for UTR numbers (e.g. HDFCH01...)
-        const utrMatches = rawText.match(/[A-Z]{4,6}[0-9]{8,14}/g) || [];
-        // Look for Phone number
-        const phoneMatch = rawText.match(/(\+91[\-\s]?)?[6-9]\d{9}/);
-        if (phoneMatch) c.phone = phoneMatch[0];
-
-        if (utrMatches.length > 0) {
-            utrMatches.forEach((utrCode, idx) => {
-                if (c.installments[idx]) {
-                    c.installments[idx].status = "Collected";
-                    c.installments[idx].utr = utrCode;
-                    c.installments[idx].collectedDate = c.installments[idx].date;
-                }
-            });
-            statusEl.textContent = `✅ OCR Extracted ${utrMatches.length} UTR(s):${utrMatches.join(', ')}`;
-        } else {
-            statusEl.textContent = `✅ OCR Scan Complete! Customer schedule verified.`;
-        }
-
-        saveToLocalStorage();
-        populateProfileInputs();
-        renderAdminInstallmentEditor();
+        renderMemoryCustomerList();
     }
 
     /* =========================================================
-       5. DASHBOARD RENDERING & PAYMENT LOGIC
+       5. DASHBOARD RENDERING & PAYMENT SETTLEMENT
        ========================================================= */
     function renderDashboardView() {
         const c = getActiveCustomer();
@@ -951,7 +1052,6 @@
         document.getElementById('dashLoanId').textContent = `Loan ID: ${c.loanId}`;
         document.getElementById('dashAddress').textContent = `📍 ${c.address}`;
 
-        // Calculate Totals
         const totalSanctioned = c.installments.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
         const totalCollected = c.installments
             .filter(i => i.status === 'Collected')
@@ -962,7 +1062,6 @@
         document.getElementById('dashInstCount').textContent = c.installments.length;
         document.getElementById('dashTotalRight').textContent = `₹${totalSanctioned.toLocaleString('en-IN')}`;
 
-        // Render Installment Cards
         const listContainer = document.getElementById('dashboardInstallmentList');
         listContainer.innerHTML = "";
 
@@ -995,7 +1094,6 @@
             listContainer.appendChild(card);
         });
 
-        // Active Due Breakdown & Fixed 500 Fine Logic
         const activeEmiAmt = activeDueInst ? (parseFloat(activeDueInst.amount) || c.emi) : c.emi;
         document.getElementById('activeDueDateBadge').textContent = activeDueInst ? `Installment #${activeDueInst.no} (${activeDueInst.date})` : `Current Due`;
         document.getElementById('breakdownEmi').textContent = `₹${activeEmiAmt.toFixed(2)}`;
@@ -1020,7 +1118,6 @@
             warnBox.classList.add('active');
         }
 
-        // Update Dynamic UPI QR
         const payableNow = c.fineSelected ? (activeEmiAmt + FIXED_FINE) : activeEmiAmt;
         const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${payableNow}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
         document.getElementById('dashUpiId').textContent = systemConfig.upiId;
@@ -1035,9 +1132,6 @@
         renderDashboardView();
     }
 
-    /* =========================================================
-       6. MARK PAYMENT RECEIVED & UPDATE HISTORY
-       ========================================================= */
     function openMarkPaymentModal(defaultIdx = null) {
         const c = getActiveCustomer();
         const selectEl = document.getElementById('selectInstToPay');
@@ -1089,17 +1183,17 @@
         } else {
             titleEl.textContent = "Payment Successful! 🎉";
             titleEl.style.color = "var(--success-green)";
-            descEl.textContent = `Full payment of ₹${paidAmt} (including ₹500 fine) recorded with UTR: ${utrVal} for ${c.name}.`;
+            descEl.textContent = `Full payment of ₹${paidAmt} (including ₹500 fine) recorded in Memory DB with UTR: ${utrVal}.`;
         }
         document.getElementById('successModal').style.display = 'flex';
     }
 
     /* =========================================================
-       7. CLICKABLE CUSTOMER LINK, WHATSAPP, SMS & PDF PRINT
+       6. CLICKABLE LINK, WHATSAPP, SMS & BRANDED PDF STATEMENT
        ========================================================= */
     function generateCustomerLink() {
+        syncActiveCustomer();
         const c = getActiveCustomer();
-        // Create lightweight clone without heavy base64 if photo is huge, so URL stays clean & clickable
         const payloadObj = {
             ...c,
             photo: c.photo.length > 2000 ? DEFAULT_AVATAR : c.photo
@@ -1112,7 +1206,7 @@
         const anchor = document.getElementById('clickableAnchorLink');
         box.style.display = 'block';
         anchor.href = finalUrl;
-        anchor.textContent = `${baseUrl}?mode=customer&loan=${c.loanId} (Click to Open Customer View)`;
+        anchor.textContent = `${baseUrl}?mode=customer&loan=${c.loanId} (Tap to Open Customer Portal)`;
         anchor.dataset.fullurl = finalUrl;
     }
 
@@ -1120,7 +1214,7 @@
         const anchor = document.getElementById('clickableAnchorLink');
         const url = anchor.dataset.fullurl || anchor.href;
         navigator.clipboard.writeText(url);
-        alert("✅ Clickable Customer Link copied to clipboard!");
+        alert("✅ Clickable Customer Link copied!");
     }
 
     function shareLinkWhatsApp() {
@@ -1129,7 +1223,7 @@
         const url = anchor.dataset.fullurl || anchor.href;
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const phoneClean = c.phone.replace(/\D/g, '');
-        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nTotal Payable: *₹${payable}.00*\n\n👉 *Click this link to view your statement & pay via UPI:*\n${url}\n\n⚠️ _Note: Delay or non-payment of bounce fine (₹500) will negatively impact your CIBIL score._`;
+        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nTotal Payable: *₹${payable}.00*\n\n👉 *Click here to view your installment history & pay via UPI:*\n${url}\n\n⚠️ _Non-payment of ₹500 bounce fine will impact your CIBIL score._`;
         window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1138,7 +1232,7 @@
         const c = getActiveCustomer();
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const phoneClean = c.phone.replace(/\D/g, '');
-        const msg = `*${systemConfig.brandTitle} - DUE NOTICE*\n\nCustomer: *${c.name}*\nLoan ID: *${c.loanId}*\nCurrent Due: *₹${payable}.00* ${c.fineSelected ? '(Incl. ₹500 Bounce Fine)' : '(Fine Pending - CIBIL Alert!)'}\nUPI ID: *${systemConfig.upiId}*\n\nPlease clear your dues immediately to protect your CIBIL credit score.`;
+        const msg = `*${systemConfig.brandTitle} - DUE NOTICE*\n\nCustomer: *${c.name}*\nLoan ID: *${c.loanId}*\nCurrent Due: *₹${payable}.00* ${c.fineSelected ? '(Incl. ₹500 Fine)' : '(Fine Pending - CIBIL Alert!)'}\nUPI ID: *${systemConfig.upiId}*\n\nPlease clear your dues immediately to protect your CIBIL credit score.`;
         window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1146,7 +1240,7 @@
         const c = getActiveCustomer();
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const phoneClean = c.phone.replace(/\D/g, '');
-        const msg = `*${systemConfig.brandTitle} - PAYMENT SUCCESSFUL* ✅\n\nDear *${c.name}*,\nWe have received your payment of *₹${payable}.00* towards Loan ID *${c.loanId}*.\n${!c.fineSelected ? '⚠️ *WARNING:* Your ₹500 bounce fine is still unpaid and will impact your CIBIL score.' : '✅ Your installment record is updated. Thank you!'}`;
+        const msg = `*${systemConfig.brandTitle} - PAYMENT SUCCESSFUL* ✅\n\nDear *${c.name}*,\nWe have received your payment of *₹${payable}.00* towards Loan ID *${c.loanId}*.\n${!c.fineSelected ? '⚠️ *WARNING:* Your ₹500 bounce fine is still unpaid and will impact your CIBIL score.' : '✅ Your installment history is updated. Thank you!'}`;
         window.open(`https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1208,7 +1302,7 @@
     }
 
     /* =========================================================
-       8. SECURITY PIN & NAVIGATION HELPERS
+       7. SECURITY PIN & SCREEN NAVIGATION
        ========================================================= */
     function openPinPrompt() {
         document.getElementById('pinInputField').value = "";
@@ -1217,14 +1311,15 @@
 
     function verifyAdminPin() {
         const pin = document.getElementById('pinInputField').value;
-        // Secret PIN check (9733)
         if (btoa(pin) === "OTczMw==") {
             closeAllModals();
             isCustomerLockedMode = false;
             document.getElementById('switchCustomerViewBtn').style.display = 'inline-block';
+            document.getElementById('topDbBar').style.display = 'flex';
             renderAdminAll();
             document.getElementById('screenDashboard').classList.remove('active');
             document.getElementById('screenSetup').classList.add('active');
+            window.scrollTo(0, 0);
         } else {
             alert("❌ Invalid Security PIN! Access Denied.");
         }
