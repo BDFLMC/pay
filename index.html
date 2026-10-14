@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bharat Digital Finance - Official Payment & Notice Portal</title>
-    <!-- Tesseract.js for Client-Side OCR (Officer Mode Only) -->
+    <!-- Tesseract.js for Client-Side OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -23,16 +23,9 @@
         
         .app-shell { max-width: 500px; min-height: 100vh; margin: 0 auto; background: #ffffff; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; }
 
-        /* =========================================================
-           STRICT CUSTOMER LINK LOCKDOWN RULES
-           Hides all Admin, OCR, Memory DB, and Officer Mark Paid UI
-           ========================================================= */
-        body.customer-locked-mode .officer-only {
-            display: none !important;
-        }
-        body:not(.customer-locked-mode) .customer-only {
-            display: none !important;
-        }
+        /* Strict Customer Lockdown Rules */
+        body.customer-locked-mode .officer-only { display: none !important; }
+        body:not(.customer-locked-mode) .customer-only { display: none !important; }
 
         /* Enterprise Brand Header */
         .enterprise-header { background: linear-gradient(135deg, var(--dark-purple), var(--primary-purple)); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
@@ -45,7 +38,7 @@
         .icon-btn:hover { background: rgba(255,255,255,0.35); }
         .verified-customer-badge { background: rgba(16, 185, 129, 0.25); border: 1px solid #34d399; color: #ecfdf5; padding: 4px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; }
 
-        /* Persistent Quick Database Bar (Officer Only) */
+        /* Persistent Database Bar (Officer Only) */
         .db-status-bar { background: #1e293b; color: white; padding: 8px 14px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 2px solid var(--primary-purple); }
         .db-status-bar select { flex: 1; background: #334155; color: white; border: 1px solid #475569; padding: 5px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; outline: none; }
         .db-badge { background: var(--success-green); color: white; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -86,13 +79,15 @@
         .progress-bar { width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; display: none; }
         .progress-fill { height: 100%; background: var(--success-green); width: 0%; transition: 0.2s; }
 
-        /* Editable Installment Editor in Admin */
+        /* Editable Installment Editor in Admin with Quick Number Add */
+        .inst-add-bar { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; background: #f8fafc; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .inst-add-bar input { width: 60px; padding: 5px; font-size: 12px; text-align: center; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 6px; }
         .inst-editor-header { display: grid; grid-template-columns: 24px 82px 68px 92px 1fr 24px; gap: 4px; font-size: 9.5px; font-weight: 800; color: var(--text-muted); padding: 0 4px 4px 4px; text-transform: uppercase; }
         .inst-editor-row { display: grid; grid-template-columns: 24px 82px 68px 92px 1fr 24px; gap: 4px; align-items: center; margin-bottom: 5px; background: #f8fafc; padding: 5px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .inst-editor-row input, .inst-editor-row select { padding: 5px 4px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 5px; width: 100%; font-weight: 600; }
         .inst-num { font-size: 11px; font-weight: 800; text-align: center; color: var(--dark-purple); }
 
-        /* Dashboard Top Banner (App Style) */
+        /* Dashboard Top Banner */
         .top-banner { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 18px 16px 28px 16px; border-radius: 0 0 24px 24px; margin: -14px -14px 0 -14px; position: relative; }
         .banner-profile { display: flex; align-items: center; gap: 14px; }
         .banner-avatar-wrap { position: relative; }
@@ -102,7 +97,7 @@
         .banner-info p { font-size: 12.5px; opacity: 0.92; margin-top: 2px; }
         .banner-info .loan-pill { display: inline-block; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 6px; font-size: 10.5px; margin-top: 4px; font-weight: 600; }
 
-        /* Floating Summary Card matching screenshot */
+        /* Floating Summary Card */
         .floating-summary-card { background: white; border-radius: 16px; padding: 16px; margin-top: -18px; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; position: relative; }
         .active-pill { position: absolute; top: -12px; left: 16px; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .summary-grid { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
@@ -110,13 +105,13 @@
         .sum-col h3 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-top: 2px; }
         .sum-col.right { text-align: right; }
         .sum-col.right p { text-decoration: underline; text-underline-offset: 4px; }
-        .address-bar { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .address-bar { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #e2e8f0; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
 
         /* Filter Header */
         .filter-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px; }
         .filter-pill { background: #ede9fe; color: var(--dark-purple); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* Installment List UI matching screenshot */
+        /* Installment List UI */
         .installment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
         .inst-item { background: white; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .inst-item.bounce-highlight { border-color: #fde68a; background: #fffbeb; }
@@ -138,7 +133,7 @@
         .due-Breakdown-table td { padding: 6px 4px; border-bottom: 1px solid #f1f5f9; }
         .due-Breakdown-table td:last-child { text-align: right; font-weight: 700; }
 
-        /* Interactive Fine Choice Options for Customer & Officer */
+        /* Interactive Fine Choice Options */
         .fine-choice-box { background: #fffbeb; border: 1.5px solid #fde68a; padding: 12px; border-radius: 12px; margin-top: 12px; }
         .fine-choice-title { font-size: 12px; font-weight: 800; color: #92400e; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .fine-radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -152,15 +147,21 @@
         /* Dynamic UPI QR Section */
         .qr-section { background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #e9d5ff; padding: 14px; border-radius: 14px; text-align: center; margin-top: 12px; }
         .qr-box { background: white; padding: 10px; display: inline-block; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); margin: 8px 0; }
-        .qr-box img { width: 145px; height: 145px; display: block; }
+        .qr-box img { width: 145px; height: 145px; display: block; cursor: pointer; }
         .timer-text { font-size: 12px; color: var(--danger-red); font-weight: 700; }
         .upi-app-btn { display: inline-block; margin-top: 8px; background: var(--dark-purple); color: white; text-decoration: none; padding: 9px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(76, 29, 149, 0.25); }
 
         /* Clickable Share Link & Link QR Box */
         .clickable-link-card { background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px; border-radius: 12px; margin-top: 12px; word-break: break-all; text-align: center; }
-        .clickable-link-card a { color: #15803d; font-weight: 700; font-size: 11.5px; text-decoration: underline; display: block; margin-bottom: 10px; background: white; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0; }
-        .link-qr-container { background: white; padding: 12px; border-radius: 12px; display: inline-block; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.12); margin: 6px 0 10px 0; }
-        .link-qr-container img { width: 150px; height: 150px; display: block; margin: 0 auto; }
+        .clickable-link-card a { color: #15803d; font-weight: 700; font-size: 12px; text-decoration: underline; display: block; margin-bottom: 10px; background: white; padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0; }
+        .link-qr-container { background: white; padding: 12px; border-radius: 12px; display: inline-block; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.12); margin: 6px 0 10px 0; cursor: pointer; transition: 0.2s; }
+        .link-qr-container:hover { transform: scale(1.03); }
+        .link-qr-container img { width: 155px; height: 155px; display: block; margin: 0 auto; }
+
+        /* Zoom Modal for Link QR */
+        .zoom-qr-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; backdrop-filter: blur(5px); }
+        .zoom-qr-box { background: white; padding: 25px; border-radius: 24px; text-align: center; max-width: 360px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: scaleUp 0.2s ease; }
+        .zoom-qr-box img { width: 260px; height: 260px; display: block; margin: 12px auto; border: 3px solid var(--success-green); padding: 8px; border-radius: 14px; background: white; }
 
         /* Action Buttons */
         .actions { margin-top: auto; padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
@@ -183,6 +184,10 @@
             0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
+        @keyframes scaleUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         /* Print-Ready Branded Statement Sheet */
         @media print {
@@ -198,7 +203,6 @@
 <div class="app-shell no-print">
     <!-- Enterprise Brand Header -->
     <div class="enterprise-header">
-        <!-- Secret Officer Backdoor: Tap Logo 5 times quickly if in customer mode -->
         <div class="brand-box" onclick="handleSecretLogoTap()">
             <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 15 H65 C80 15 85 30 75 42 C68 50 55 50 55 50 C75 52 85 68 75 82 C68 90 55 92 20 92 V78 H55 C65 78 68 65 55 60 H35 V45 H55 C65 45 68 30 55 28 H20 V15 Z" fill="url(#bdflGrad)"/>
@@ -219,37 +223,33 @@
             </div>
         </div>
 
-        <!-- Officer Header Buttons (Strictly Hidden When Customer Opens Link) -->
         <div class="header-actions officer-only">
             <button class="icon-btn" id="switchCustomerViewBtn" onclick="showDashboardScreen()">📱 Notice View</button>
             <button class="icon-btn" onclick="openPinPrompt()">🔒 Admin & OCR</button>
         </div>
 
-        <!-- Customer Header Badge (Shown Only to Customer Coming from Link) -->
         <div class="header-actions customer-only">
             <span class="verified-customer-badge">🛡️ Verified Payment Link</span>
         </div>
     </div>
 
-    <!-- Top Memory Database Bar (Strictly Officer Only) -->
+    <!-- Persistent Database Bar (Officer Only) -->
     <div class="db-status-bar officer-only" id="topDbBar" style="display: none;">
         <span>🗄️ DB:</span>
         <select id="quickCustomerSelect" onchange="selectCustomerFromMemory(parseInt(this.value))"></select>
         <span class="db-badge" id="dbSaveIndicator">Saved ✓</span>
     </div>
 
-    <!-- =========================================================
-         SCREEN 1: OFFICER ADMIN, MEMORY DB & OCR (HIDDEN FROM CUSTOMER)
-         ========================================================= -->
+    <!-- SCREEN 1: OFFICER ADMIN & CLEAN PROFILE SETUP -->
     <div id="screenSetup" class="screen officer-only">
         
-        <!-- SECTION A: VISIBLE MEMORY DATABASE MANAGER -->
+        <!-- MEMORY DATABASE MANAGER -->
         <div class="card">
             <div class="card-title">
-                <span>🗄️ 1. Customer Memory Database (<span id="memCount">1</span> Records)</span>
+                <span>🗄️ 1. Customer Memory Database (<span id="memCount">0</span> Records)</span>
                 <div style="display: flex; gap: 4px;">
                     <button class="sm-btn success" onclick="saveCurrentToDatabaseWithToast()">💾 Save DB</button>
-                    <button class="sm-btn load" onclick="createNewCustomer()">+ New</button>
+                    <button class="sm-btn load" onclick="createNewCustomer()">+ New Customer</button>
                 </div>
             </div>
             <div class="memory-list" id="customerMemoryList"></div>
@@ -257,19 +257,18 @@
                 <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="exportDatabaseJson()">⬇️ Export DB</button>
                 <button class="sm-btn" style="flex:1; background:#e2e8f0;" onclick="document.getElementById('importDbInput').click()">⬆️ Import DB</button>
                 <input type="file" id="importDbInput" accept=".json" style="display:none" onchange="importDatabaseJson(event)">
-                <button class="sm-btn del" onclick="resetToDemoCustomer()">🔄 Reset Demo</button>
             </div>
         </div>
 
-        <!-- SECTION B: HITECH OCR SCREENSHOT SCANNER -->
+        <!-- HITECH OCR SCREENSHOT SCANNER -->
         <div class="card">
             <div class="card-title">
                 <span>🤖 2. Smart OCR Screenshot Scanner</span>
-                <span style="font-size: 10px; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px;">Auto-Applies to Profile</span>
+                <span style="font-size: 10px; background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 4px;">Auto-Populates Profile</span>
             </div>
             <div class="ocr-box">
-                <span style="font-size: 12.5px; font-weight: 800; color: var(--dark-purple);">📷 Upload Installment / Due Screenshot for Auto-OCR</span>
-                <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Reads Customer Name, Phone, EMI Amount, Dates, Collected/Scheduled Status & UTRs</p>
+                <span style="font-size: 12.5px; font-weight: 800; color: var(--dark-purple);">📷 Upload Statement Screenshot for Auto-OCR</span>
+                <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Reads Name, Phone, EMI, Dates, Status & UTRs automatically</p>
                 <input type="file" accept="image/*" onchange="runFullOcrExtraction(event)">
             </div>
             <div class="progress-bar" id="ocrProgressBar">
@@ -278,38 +277,44 @@
             <div id="ocrStatusMsg" class="ocr-status"></div>
         </div>
 
-        <!-- SECTION C: EDITABLE CUSTOMER PROFILE -->
+        <!-- EDITABLE CUSTOMER PROFILE ON HOME PAGE -->
         <div class="card" id="editableProfileCard">
             <div class="card-title">
-                <span>✏️ 3. Edit Customer Details (Post-OCR Review)</span>
-                <button class="sm-btn success" onclick="saveCurrentToDatabaseWithToast()">✓ Apply & Save</button>
+                <span>✏️ 3. Customer Profile & Collection Agent</span>
+                <button class="sm-btn success" onclick="saveCurrentToDatabaseWithToast()">✓ Save Profile</button>
             </div>
             
             <div class="form-group">
                 <label>Customer Full Name</label>
-                <input type="text" id="inputName" class="form-control" oninput="syncActiveCustomer()">
+                <input type="text" id="inputName" class="form-control" placeholder="Enter Customer Name" oninput="syncActiveCustomer()">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Loan Account ID</label>
-                    <input type="text" id="inputLoanId" class="form-control" oninput="syncActiveCustomer()">
+                    <input type="text" id="inputLoanId" class="form-control" placeholder="Loan ID" oninput="syncActiveCustomer()">
                 </div>
                 <div class="form-group">
                     <label>Customer Phone Number</label>
-                    <input type="text" id="inputPhone" class="form-control" oninput="syncActiveCustomer()">
+                    <input type="text" id="inputPhone" class="form-control" placeholder="+91 ..." oninput="syncActiveCustomer()">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Customer Address & Branch</label>
-                <input type="text" id="inputAddress" class="form-control" oninput="syncActiveCustomer()">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Customer Address & Branch</label>
+                    <input type="text" id="inputAddress" class="form-control" placeholder="Village, Post, District" oninput="syncActiveCustomer()">
+                </div>
+                <div class="form-group">
+                    <label>Collection Agent Name</label>
+                    <input type="text" id="inputAgentName" class="form-control" value="Chandan Das" placeholder="Officer Name" oninput="syncActiveCustomer()">
+                </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Monthly EMI Amount (₹)</label>
-                    <input type="number" id="inputEmi" class="form-control" oninput="updateAllScheduledEmis(this.value)">
+                    <input type="number" id="inputEmi" class="form-control" placeholder="1568" oninput="updateAllScheduledEmis(this.value)">
                 </div>
                 <div class="form-group">
                     <label>Fixed Bounce Fine (₹)</label>
@@ -318,7 +323,7 @@
             </div>
 
             <div class="form-group">
-                <label>Customer Photo (Upload / Change)</label>
+                <label>Customer Photo (Upload)</label>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <img id="setupPhotoPreview" src="" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-purple);">
                     <input type="file" accept="image/*" class="form-control" style="font-size: 11px;" onchange="handleCustomerPhotoUpload(event)">
@@ -326,12 +331,19 @@
             </div>
         </div>
 
-        <!-- SECTION D: EDITABLE INSTALLMENT & PAYMENT HISTORY TABLE -->
+        <!-- EDITABLE INSTALLMENT & PAYMENT HISTORY TABLE WITH QUICK NUMBER ADD -->
         <div class="card" id="editableHistoryCard">
             <div class="card-title">
-                <span>📅 4. Edit Installment & Payment History</span>
-                <button class="sm-btn load" onclick="addInstallmentRow()">+ Add EMI Row</button>
+                <span>📅 4. Installment & Payment History</span>
             </div>
+            <!-- Number-based Quick Add Bar -->
+            <div class="inst-add-bar">
+                <span style="font-size: 11px; font-weight: 700; color: var(--dark-purple);">Quick Add EMI Count (#):</span>
+                <input type="number" id="quickAddCountInput" value="8" min="1" max="36">
+                <button class="sm-btn load" style="padding: 6px 12px;" onclick="generateInstallmentRowsByNumber()">⚡ Generate Rows</button>
+                <button class="sm-btn" style="padding: 6px 10px; background: #e2e8f0; margin-left: auto;" onclick="addInstallmentRow()">+ Single Row</button>
+            </div>
+            
             <div class="inst-editor-header">
                 <div>#</div>
                 <div>Due Date</div>
@@ -343,7 +355,7 @@
             <div id="adminInstallmentEditor"></div>
         </div>
 
-        <!-- SECTION E: BRANDING, COMPANY MOBILE, UPI ID & LINK QR GENERATOR -->
+        <!-- BRANDING, COMPANY MOBILE, UPI & LINK QR -->
         <div class="card">
             <div class="card-title">
                 <span>⚙️ 5. Brand, Company Mobile, UPI & Link QR</span>
@@ -360,7 +372,7 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Company Mobile (For Customer Screenshot)</label>
+                    <label>Company Mobile (For WhatsApp Screenshot)</label>
                     <input type="text" id="inputCompanyPhone" class="form-control" value="9733322375" oninput="saveSystemConfig()">
                 </div>
                 <div class="form-group">
@@ -369,15 +381,14 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" style="padding: 12px; font-size: 13px; margin-top: 6px;" onclick="generateCustomerLink()">🔗 Generate Customer Link & Link QR Code</button>
+            <button class="btn btn-primary" style="padding: 12px; font-size: 13px; margin-top: 6px;" onclick="generateCustomerLink()">🔗 Generate Customer Link & Zoomable QR</button>
             
-            <!-- GENERATED LINK + SCANNABLE LINK QR CODE -->
             <div id="inlineClickableLinkBox" class="clickable-link-card" style="display: none;">
-                <span style="font-size: 11px; color: #166534; font-weight: 800; display: block; margin-bottom: 6px;">📱 Scannable Customer Portal Link QR Code:</span>
+                <span style="font-size: 11px; color: #166534; font-weight: 800; display: block; margin-bottom: 4px;">🔍 Zoomable / Scannable Customer Link QR:</span>
                 
-                <div class="link-qr-container">
+                <div class="link-qr-container" onclick="openZoomedQrModal()" title="Tap to Zoom View">
                     <img id="portalLinkQrImg" src="" alt="Customer Portal Link QR Code">
-                    <div style="font-size: 9.5px; color: #15803d; font-weight: 700; margin-top: 4px;">Scan to Open Customer Notice & Payment Link</div>
+                    <div style="font-size: 10px; color: #15803d; font-weight: 800; margin-top: 4px;">🔍 Tap to Zoom QR View</div>
                 </div>
 
                 <span style="font-size: 10.5px; color: #166534; font-weight: 700; display: block; margin-bottom: 4px;">🔗 Direct Clickable Customer Portal Link:</span>
@@ -385,8 +396,8 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
                     <button class="sm-btn load" style="padding: 8px;" onclick="copyGeneratedLink()">📋 Copy Link</button>
-                    <button class="sm-btn success" style="padding: 8px;" onclick="shareLinkWhatsApp()">💬 Send Link on WhatsApp</button>
-                    <button class="sm-btn" style="padding: 8px; background: #0f172a; color: white;" onclick="downloadLinkQrImage()">📥 Open / Save Link QR</button>
+                    <button class="sm-btn success" style="padding: 8px;" onclick="shareLinkWhatsApp()">💬 Send on WhatsApp</button>
+                    <button class="sm-btn" style="padding: 8px; background: #0f172a; color: white;" onclick="openZoomedQrModal()">🔍 Zoom View QR</button>
                     <button class="sm-btn" style="padding: 8px; background:#cbd5e1;" onclick="previewCustomerLockedMode()">👁️ Preview Customer View</button>
                 </div>
             </div>
@@ -397,11 +408,9 @@
         </div>
     </div>
 
-    <!-- =========================================================
-         SCREEN 2: COLLECTION & PAYMENT DASHBOARD
-         ========================================================= -->
+    <!-- SCREEN 2: COLLECTION & PAYMENT DASHBOARD -->
     <div id="screenDashboard" class="screen active">
-        <!-- App Style Top Purple Banner -->
+        <!-- Top Purple Banner -->
         <div class="top-banner">
             <div class="banner-profile">
                 <div class="banner-avatar-wrap">
@@ -416,7 +425,7 @@
             </div>
         </div>
 
-        <!-- Floating Total / Collected Card matching screenshot -->
+        <!-- Floating Summary Card -->
         <div class="floating-summary-card">
             <span class="active-pill">Active</span>
             <div class="summary-grid">
@@ -431,7 +440,7 @@
             </div>
             <div class="address-bar">
                 <span id="dashAddress">📍 Kushida, HCPUR, Malda - 732140</span>
-                <span>📞 Helpline: <strong id="dashCompanyHelpline">9733322375</strong></span>
+                <span>👨‍💼 Agent: <strong id="dashAgentName">Chandan Das</strong></span>
             </div>
         </div>
 
@@ -444,7 +453,7 @@
         <!-- Installment Schedule List -->
         <div class="installment-list" id="dashboardInstallmentList"></div>
 
-        <!-- Overdue / Bounce Payment Action Card (Visible to Customer & Officer) -->
+        <!-- Overdue / Bounce Payment Action Card -->
         <div class="card">
             <div class="card-title">
                 <span>💳 Current Due & Payment Options</span>
@@ -466,7 +475,7 @@
                 </tr>
             </table>
 
-            <!-- Clear Fine Selection Options (Pay With Fine vs Pay Without Fine) -->
+            <!-- Fine Selection Options -->
             <div class="fine-choice-box">
                 <div class="fine-choice-title">
                     <span>Select Payment Option (Fine: ₹500 Fixed):</span>
@@ -482,7 +491,7 @@
                 </div>
             </div>
 
-            <!-- CIBIL Warning Alert (Triggered automatically when Fine is deselected) -->
+            <!-- CIBIL Warning Alert -->
             <div class="warning-box" id="cibilWarningBox">
                 ⚠️ <strong>CIBIL & Legal Warning:</strong> Choosing to pay without the ₹500 bounce fine keeps your loan account in default status, which will negatively impact your CIBIL credit score and may attract legal recovery action.
             </div>
@@ -491,40 +500,48 @@
             <div class="qr-section">
                 <div style="font-size: 12px; font-weight: 700; color: var(--dark-purple);">Scan & Pay via Any UPI App (<span id="dashUpiId">mobileand@nyes</span>)</div>
                 <div class="qr-box">
-                    <img id="dynamicQrImg" src="" alt="UPI QR Code">
+                    <img id="dynamicQrImg" src="" alt="UPI QR Code" onclick="openZoomedUpiQrModal()" title="Tap to Zoom UPI QR">
                 </div>
+                <div style="font-size: 10.5px; color: var(--primary-purple); font-weight: 700; margin-bottom: 4px; cursor: pointer;" onclick="openZoomedUpiQrModal()">🔍 Tap QR to Zoom View</div>
                 <div class="timer-text" id="qrCountdown">QR Valid For: 10:00</div>
                 <a href="#" id="directUpiAppBtn" class="upi-app-btn">⚡ Pay Now via UPI App (<span id="upiBtnAmountText">₹2,068</span>)</a>
             </div>
 
-            <!-- Officer Quick Link QR Card on Dashboard (Hidden from Customer) -->
+            <!-- Officer Quick Link QR Card on Dashboard -->
             <div class="qr-section officer-only" style="background: #f0fdf4; border-color: #bbf7d0; margin-top: 10px;">
-                <div style="font-size: 11.5px; font-weight: 800; color: #166534;">📲 Customer Portal Link QR (Scan to Open Customer View)</div>
-                <div class="qr-box" style="border: 1.5px solid #22c55e;">
-                    <img id="dashPortalLinkQrImg" src="" alt="Portal Link QR Code" style="width: 125px; height: 125px;">
+                <div style="font-size: 11.5px; font-weight: 800; color: #166534;">📲 Customer Portal Link QR (Tap to Zoom & Scan)</div>
+                <div class="qr-box" style="border: 1.5px solid #22c55e; cursor: pointer;" onclick="openZoomedQrModal()">
+                    <img id="dashPortalLinkQrImg" src="" alt="Portal Link QR Code" style="width: 130px; height: 130px;">
                 </div>
-                <div style="font-size: 10px; color: #15803d; font-weight: 600;">Customer scanning this QR opens this notice link on their phone</div>
+                <div style="font-size: 10.5px; color: #15803d; font-weight: 800; cursor: pointer;" onclick="openZoomedQrModal()">🔍 Tap QR for Zoomed View</div>
             </div>
         </div>
 
-        <!-- =========================================================
-             CUSTOMER-ONLY ACTIONS (SHOWN WHEN OPENED FROM SHARED LINK)
-             Sends Screenshot & Confirmation Directly to Company Mobile (9733322375)
-             ========================================================= -->
+        <!-- Customer-Only Actions -->
         <div class="actions customer-only">
-            <button class="btn btn-whatsapp" onclick="customerConfirmPaymentWhatsApp()">💬 Send Payment Screenshot on WhatsApp (<span id="custBtnWaPhone">9733322375</span>)</button>
-            <button class="btn btn-success" onclick="customerConfirmPaymentSms()">✅ I Have Paid (Send SMS to <span id="custBtnSmsPhone">9733322375</span>)</button>
+            <button class="btn btn-whatsapp" onclick="customerConfirmPaymentWhatsApp()">💬 Send Payment Screenshot on WhatsApp</button>
+            <button class="btn btn-success" onclick="customerConfirmPaymentSms()">✅ I Have Paid (Send SMS Confirmation)</button>
             <button class="btn btn-pdf" onclick="printBrandedStatement()">📥 Download Account Statement (PDF)</button>
         </div>
 
-        <!-- =========================================================
-             OFFICER-ONLY ACTIONS (COMPLETELY HIDDEN FROM CUSTOMER LINK)
-             ========================================================= -->
+        <!-- Officer-Only Actions -->
         <div class="actions officer-only">
             <button class="btn btn-primary" onclick="openMarkPaymentModal()">✅ Mark Payment Received (Officer)</button>
             <button class="btn btn-pdf" onclick="printBrandedStatement()">📥 Download Full Statement & History (PDF)</button>
             <a href="#" class="btn btn-whatsapp" onclick="sendWhatsAppUpdate(event)">💬 Send Notice / Receipt to Customer WhatsApp</a>
             <a href="#" class="btn btn-sms" onclick="sendSmsAlert(event)">📲 Send Payment & CIBIL Alert to Customer SMS</a>
+        </div>
+    </div>
+
+    <!-- ZOOMABLE LINK QR MODAL -->
+    <div class="zoom-qr-modal" id="zoomQrModal" onclick="closeZoomedQrModal()">
+        <div class="zoom-qr-box" onclick="event.stopPropagation()">
+            <h3 style="color: var(--dark-purple); font-size: 18px; margin-bottom: 4px;">🔍 Customer Portal Link QR</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Scan with any mobile camera to open secure payment portal:</p>
+            <img id="zoomedQrImage" src="" alt="Zoomed Link QR Code">
+            <div id="zoomedQrUrlText" style="font-size: 10px; font-family: monospace; color: #166534; background: #f0fdf4; padding: 6px; border-radius: 6px; margin: 10px 0; word-break: break-all; border: 1px solid #bbf7d0;"></div>
+            <button class="btn btn-success" style="padding: 10px; font-size: 12px; margin-top: 8px;" onclick="copyGeneratedLink()">📋 Copy Portal Link</button>
+            <button class="btn btn-secondary" style="padding: 9px; font-size: 12px; margin-top: 6px;" onclick="closeZoomedQrModal()">Close Zoom</button>
         </div>
     </div>
 
@@ -539,7 +556,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: OFFICER MARK PAYMENT & UTR ENTRY -->
+    <!-- MODAL 2: OFFICER MARK PAYMENT -->
     <div class="modal-overlay officer-only" id="markPaymentModal">
         <div class="modal" style="text-align: left;">
             <h3 style="text-align: center;">✅ Confirm Payment Collection</h3>
@@ -586,7 +603,7 @@
         <div style="text-align: right; font-size: 11px;">
             <strong>OFFICIAL COLLECTION STATEMENT & HISTORY</strong><br>
             <span>Date: <span id="printGeneratedDate">14 Oct 2026</span></span><br>
-            <span>Company Helpline: <strong id="printCompanyPhone">+91 9733322375</strong></span>
+            <span>Collection Agent: <strong id="printAgentName">Chandan Das</strong></span>
         </div>
     </div>
 
@@ -622,7 +639,6 @@
         <tbody id="printHistoryTableBody"></tbody>
     </table>
 
-    <!-- Dual QR Codes on Printed PDF: 1. UPI Payment QR, 2. Portal Link QR -->
     <div style="display: flex; justify-content: space-around; align-items: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center;">
         <div>
             <strong style="font-size: 11px; color: #4c1d95; display: block; margin-bottom: 4px;">1. Scan to Pay via UPI</strong>
@@ -637,47 +653,45 @@
     </div>
 
     <div style="font-size: 11px; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between;">
-        <span>Send Payment Screenshot on WhatsApp: <strong id="printFooterPhone">9733322375</strong></span>
+        <span>Assigned Collection Officer: <strong id="printFooterAgent">Chandan Das</strong></span>
         <span>Authorized Signatory - Bharat Digital Finance Recovery Division</span>
     </div>
 </div>
 
 <script>
     /* =========================================================
-       1. PERSISTENT MEMORY DATABASE ENGINE
+       1. CLEAN MEMORY DATABASE & 24-HR LOCKDOWN ENGINE
        ========================================================= */
-    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V6";
-    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V6";
+    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V11";
+    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V11";
+    const STORAGE_KEY_LOCK = "BDFL_CUSTOMER_LOCK_TIMESTAMP";
     const FIXED_FINE = 500;
     const DEFAULT_COMPANY_MOBILE = "9733322375";
 
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-            <rect width="120" height="120" fill="#854d0e"/>
-            <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="48" font-weight="bold">S</text>
+            <rect width="120" height="120" fill="#4c1d95"/>
+            <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="44" font-weight="bold">BDFL</text>
         </svg>
     `);
 
-    function getDefaultDemoCustomer() {
+    function getCleanEmptyCustomer() {
         return {
-            id: "cust_surja_01",
-            name: "SURJA KANTA THOKDAR",
-            loanId: "BDFL-PRINTER-UN19739",
-            phone: "+91 9382049682",
-            address: "Kushida, HCPUR, Malda - 732140",
+            id: "cust_" + Date.now(),
+            name: "ENTER CUSTOMER NAME",
+            loanId: "BDFL-LOAN-" + Math.floor(10000 + Math.random() * 90000),
+            phone: "+91 9800000000",
+            address: "Harishchandrapur, Malda - 732125",
+            agentName: "Chandan Das",
             emi: 1568,
             fine: 500,
             fineSelected: true,
             photo: DEFAULT_AVATAR,
             installments: [
-                { no: 1, date: "7 Jun 26", status: "Collected", collectedDate: "07 Jun 26", utr: "HDFCH01048384424", amount: 1568 },
-                { no: 2, date: "7 Jul 26", status: "Collected", collectedDate: "07 Jul 26", utr: "HDFCH01114423050", amount: 1568 },
-                { no: 3, date: "7 Aug 26", status: "Collected", collectedDate: "07 Aug 26", utr: "HDFCH01185287862", amount: 1568 },
-                { no: 4, date: "7 Sep 26", status: "Collected", collectedDate: "07 Sep 26", utr: "HDFCH01249843144", amount: 1568 },
-                { no: 5, date: "7 Oct 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Overdue + ₹500 Fine", amount: 1568 },
-                { no: 6, date: "7 Nov 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
-                { no: 7, date: "7 Dec 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
-                { no: 8, date: "7 Jan 27", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 }
+                { no: 1, date: "7 Oct 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Overdue + ₹500 Fine", amount: 1568 },
+                { no: 2, date: "7 Nov 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
+                { no: 3, date: "7 Dec 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
+                { no: 4, date: "7 Jan 27", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 }
             ]
         };
     }
@@ -697,25 +711,31 @@
     let secretTapTimeout = null;
 
     /* =========================================================
-       2. INITIALIZATION & STRICT CUSTOMER MODE DETECTION
+       2. INITIALIZATION & 24-HOUR LOCKDOWN CHECK
        ========================================================= */
     window.onload = function() {
         loadSystemMemory();
 
         const urlParams = new URLSearchParams(window.location.search);
-        // If customer opens link (?mode=customer or ?payload=...), strictly lock UI
+        const lockTimestamp = localStorage.getItem(STORAGE_KEY_LOCK);
+        const now = Date.now();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+
+        if (lockTimestamp && (now - parseInt(lockTimestamp) < twentyFourHours)) {
+            enableStrictCustomerMode();
+            if (urlParams.has('payload')) {
+                decodeAndApplyPayload(urlParams.get('payload'));
+            }
+            showDashboardScreen();
+            return;
+        }
+
         if (urlParams.has('payload') || urlParams.get('mode') === 'customer' || urlParams.has('loan')) {
+            localStorage.setItem(STORAGE_KEY_LOCK, now.toString());
             enableStrictCustomerMode();
 
             if (urlParams.has('payload')) {
-                try {
-                    const decoded = JSON.parse(decodeURIComponent(escape(atob(urlParams.get('payload')))));
-                    customersDB[0] = decoded;
-                    activeCustomerIndex = 0;
-                    if (decoded.upiId) systemConfig.upiId = decoded.upiId;
-                    if (decoded.brandTitle) systemConfig.brandTitle = decoded.brandTitle;
-                    if (decoded.companyPhone) systemConfig.companyPhone = decoded.companyPhone;
-                } catch (e) { console.error("Payload decode error", e); }
+                decodeAndApplyPayload(urlParams.get('payload'));
             }
             showDashboardScreen();
         } else {
@@ -725,6 +745,17 @@
         startQrCountdown();
     };
 
+    function decodeAndApplyPayload(payloadStr) {
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(payloadStr))));
+            customersDB[0] = decoded;
+            activeCustomerIndex = 0;
+            if (decoded.upiId) systemConfig.upiId = decoded.upiId;
+            if (decoded.brandTitle) systemConfig.brandTitle = decoded.brandTitle;
+            if (decoded.companyPhone) systemConfig.companyPhone = decoded.companyPhone;
+        } catch (e) { console.error("Payload decode error", e); }
+    }
+
     function enableStrictCustomerMode() {
         isCustomerLockedMode = true;
         document.body.classList.add('customer-locked-mode');
@@ -733,10 +764,11 @@
     }
 
     function previewCustomerLockedMode() {
+        localStorage.setItem(STORAGE_KEY_LOCK, Date.now().toString());
         enableStrictCustomerMode();
         renderDashboardView();
         window.scrollTo(0, 0);
-        alert("👁️ Customer Link Mode Activated!\n\nAll Admin, OCR, and 'Mark Paid' options are now hidden.\nCustomer screenshot & SMS confirmations will be sent to Company Mobile: " + systemConfig.companyPhone + "\n\n(Tip: Tap the top-left Bharat Digital logo 5 times quickly to unlock Officer Mode).");
+        alert("🔒 24-Hour Customer Lockdown Activated!\n\nHome page access is now blocked for 24 hours. All Admin, OCR, and 'Mark Paid' options are hidden.\n\n(Tip: To test Officer mode again, tap the top-left logo 5 times quickly).");
     }
 
     function handleSecretLogoTap() {
@@ -745,6 +777,7 @@
         secretTapTimeout = setTimeout(() => { secretTapCount = 0; }, 1800);
         if (secretTapCount >= 5) {
             secretTapCount = 0;
+            localStorage.removeItem(STORAGE_KEY_LOCK);
             openPinPrompt();
         }
     }
@@ -761,7 +794,7 @@
         const savedDb = localStorage.getItem(STORAGE_KEY_DB);
         if (savedDb) { try { customersDB = JSON.parse(savedDb); } catch(e){} }
         if (!customersDB || customersDB.length === 0) {
-            customersDB = [getDefaultDemoCustomer()];
+            customersDB = [getCleanEmptyCustomer()];
             saveToLocalStorage();
         }
         applySystemBranding();
@@ -791,7 +824,7 @@
     }
 
     /* =========================================================
-       3. DATABASE UI & JSON BACKUP / RESTORE (OFFICER ONLY)
+       3. DATABASE UI & JSON BACKUP / RESTORE
        ========================================================= */
     function renderAdminAll() {
         renderMemoryCustomerList();
@@ -846,23 +879,7 @@
     }
 
     function createNewCustomer() {
-        const newCust = {
-            id: "cust_" + Date.now(),
-            name: "NEW CUSTOMER",
-            loanId: "BDFL-PRINTER-UN" + Math.floor(10000 + Math.random() * 90000),
-            phone: "+91 9800000000",
-            address: "Kushida, HCPUR, Malda - 732140",
-            emi: 1568,
-            fine: 500,
-            fineSelected: true,
-            photo: DEFAULT_AVATAR,
-            installments: [
-                { no: 1, date: "7 Jun 26", status: "Collected", collectedDate: "07 Jun 26", utr: "HDFCH01048384424", amount: 1568 },
-                { no: 2, date: "7 Jul 26", status: "Bounce", collectedDate: "In Progress (Bounce)", utr: "Pending + ₹500 Fine", amount: 1568 },
-                { no: 3, date: "7 Aug 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 },
-                { no: 4, date: "7 Sep 26", status: "Scheduled", collectedDate: "Scheduled", utr: "-", amount: 1568 }
-            ]
-        };
+        const newCust = getCleanEmptyCustomer();
         customersDB.unshift(newCust);
         activeCustomerIndex = 0;
         saveToLocalStorage();
@@ -872,18 +889,10 @@
     function deleteCustomerFromMemory(idx) {
         if (confirm("Remove this customer from Memory Database?")) {
             customersDB.splice(idx, 1);
+            if (customersDB.length === 0) customersDB.push(getCleanEmptyCustomer());
             activeCustomerIndex = 0;
             saveToLocalStorage();
             renderAdminAll();
-        }
-    }
-
-    function resetToDemoCustomer() {
-        if (confirm("Restore Surja Kanta Thokdar full 8-installment demo record?")) {
-            customersDB[activeCustomerIndex] = getDefaultDemoCustomer();
-            saveToLocalStorage();
-            renderAdminAll();
-            renderDashboardView();
         }
     }
 
@@ -917,7 +926,7 @@
     }
 
     /* =========================================================
-       4. HITECH OCR SCREENSHOT PARSER (OFFICER ONLY)
+       4. HITECH OCR SCREENSHOT SCANNER
        ========================================================= */
     async function runFullOcrExtraction(event) {
         const file = event.target.files[0];
@@ -1039,7 +1048,7 @@
     }
 
     /* =========================================================
-       5. PROFILE & INSTALLMENT TABLE EDITORS (OFFICER ONLY)
+       5. PROFILE & INSTALLMENT TABLE EDITORS (WITH AGENT NAME)
        ========================================================= */
     function populateProfileInputs() {
         const c = getActiveCustomer();
@@ -1047,6 +1056,7 @@
         document.getElementById('inputLoanId').value = c.loanId;
         document.getElementById('inputPhone').value = c.phone;
         document.getElementById('inputAddress').value = c.address;
+        document.getElementById('inputAgentName').value = c.agentName || "Chandan Das";
         document.getElementById('inputEmi').value = c.emi;
         document.getElementById('setupPhotoPreview').src = c.photo || DEFAULT_AVATAR;
     }
@@ -1057,6 +1067,7 @@
         c.loanId = document.getElementById('inputLoanId').value;
         c.phone = document.getElementById('inputPhone').value;
         c.address = document.getElementById('inputAddress').value;
+        c.agentName = document.getElementById('inputAgentName').value || "Chandan Das";
         saveToLocalStorage();
         renderMemoryCustomerList();
     }
@@ -1131,6 +1142,38 @@
         renderMemoryCustomerList();
     }
 
+    function generateInstallmentRowsByNumber() {
+        const countInput = document.getElementById('quickAddCountInput');
+        const totalRows = parseInt(countInput.value) || 8;
+        const c = getActiveCustomer();
+        c.installments = [];
+
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let baseDate = new Date(2026, 5, 7);
+
+        for (let i = 0; i < totalRows; i++) {
+            let d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 7);
+            let dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}${String(d.getFullYear()).slice(-2)}`;
+            let st = i === 0 ? "Collected" : (i === 1 ? "Bounce" : "Scheduled");
+            let colDt = i === 0 ? dateStr : (i === 1 ? "In Progress (Bounce)" : "Scheduled");
+            let utrStr = i === 0 ? "HDFCH010" + Math.floor(100000000 + Math.random() * 900000000) : (i === 1 ? "Overdue + ₹500 Fine" : "-");
+
+            c.installments.push({
+                no: i + 1,
+                date: dateStr,
+                status: st,
+                collectedDate: colDt,
+                utr: utrStr,
+                amount: c.emi
+            });
+        }
+
+        saveToLocalStorage();
+        renderAdminInstallmentEditor();
+        renderMemoryCustomerList();
+        alert(`⚡ Generated ${totalRows} installment rows successfully!`);
+    }
+
     function addInstallmentRow() {
         const c = getActiveCustomer();
         const nextNo = c.installments.length + 1;
@@ -1161,7 +1204,6 @@
        ========================================================= */
     function buildCustomerPortalUrl() {
         const c = getActiveCustomer();
-        // Keep URL compact so the Link QR Code is clean and fast to scan on any mobile camera
         const compactInst = c.installments.map(i => [
             i.no,
             i.date,
@@ -1175,6 +1217,7 @@
             l: c.loanId,
             p: c.phone,
             a: c.address,
+            ag: c.agentName || "Chandan Das",
             e: c.emi,
             fs: c.fineSelected ? 1 : 0,
             u: systemConfig.upiId,
@@ -1201,6 +1244,7 @@
                         loanId: raw.l,
                         phone: raw.p,
                         address: raw.a,
+                        agentName: raw.ag || "Chandan Das",
                         emi: raw.e,
                         fine: 500,
                         fineSelected: raw.fs === 1,
@@ -1221,7 +1265,33 @@
     }
 
     /* =========================================================
-       7. DASHBOARD RENDERING & CUSTOMER FINE OPTIONS
+       7. ZOOMABLE LINK QR MODAL
+       ========================================================= */
+    function openZoomedQrModal() {
+        const portalUrl = buildCustomerPortalUrl();
+        const bigQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(portalUrl)}`;
+        document.getElementById('zoomedQrImage').src = bigQrUrl;
+        document.getElementById('zoomedQrUrlText').textContent = portalUrl;
+        document.getElementById('zoomQrModal').style.display = 'flex';
+    }
+
+    function closeZoomedQrModal() {
+        document.getElementById('zoomQrModal').style.display = 'none';
+    }
+
+    function openZoomedUpiQrModal() {
+        const c = getActiveCustomer();
+        const payableNow = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
+        const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${payableNow}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
+        const bigUpiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
+        
+        document.getElementById('zoomedQrImage').src = bigUpiQrUrl;
+        document.getElementById('zoomedQrUrlText').textContent = upiUri;
+        document.getElementById('zoomQrModal').style.display = 'flex';
+    }
+
+    /* =========================================================
+       8. DASHBOARD RENDERING & CUSTOMER FINE OPTIONS
        ========================================================= */
     function renderDashboardView() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -1236,9 +1306,7 @@
         document.getElementById('dashPhone').textContent = c.phone;
         document.getElementById('dashLoanId').textContent = `Loan ID: ${c.loanId}`;
         document.getElementById('dashAddress').textContent = `📍 ${c.address}`;
-        document.getElementById('dashCompanyHelpline').textContent = compPhone;
-        document.getElementById('custBtnWaPhone').textContent = compPhone;
-        document.getElementById('custBtnSmsPhone').textContent = compPhone;
+        document.getElementById('dashAgentName').textContent = c.agentName || "Chandan Das";
 
         const totalSanctioned = c.installments.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
         const totalCollected = c.installments
@@ -1309,16 +1377,13 @@
             warnBox.classList.add('active');
         }
 
-        // 1. Update UPI Payment QR Code
         const payableNow = c.fineSelected ? (activeEmiAmt + FIXED_FINE) : activeEmiAmt;
         const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${payableNow}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
-        const upiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
         document.getElementById('dashUpiId').textContent = systemConfig.upiId;
         document.getElementById('upiBtnAmountText').textContent = `₹${payableNow.toLocaleString('en-IN')}`;
-        document.getElementById('dynamicQrImg').src = upiQrUrl;
+        document.getElementById('dynamicQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUri)}`;
         document.getElementById('directUpiAppBtn').href = upiUri;
 
-        // 2. Update Portal Link QR Code (Contains the Customer Link!)
         const portalLinkUrl = buildCustomerPortalUrl();
         const linkQrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(portalLinkUrl)}`;
         const dashLinkQr = document.getElementById('dashPortalLinkQrImg');
@@ -1333,7 +1398,7 @@
     }
 
     /* =========================================================
-       8. CUSTOMER SELF-CONFIRMATION (SENDS TO COMPANY NUMBER: 9733322375)
+       9. CUSTOMER SELF-CONFIRMATION TO 9733322375
        ========================================================= */
     function getFormattedCompanyMobile(forWhatsApp = false) {
         let raw = (systemConfig.companyPhone || DEFAULT_COMPANY_MOBILE).replace(/\D/g, '');
@@ -1345,7 +1410,7 @@
         const c = getActiveCustomer();
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const companyWaPhone = getFormattedCompanyMobile(true);
-        const msg = `*PAYMENT SCREENSHOT & CONFIRMATION - ${systemConfig.brandTitle}*\n\nCustomer Name: *${c.name}*\nCustomer Mobile: *${c.phone}*\nLoan ID: *${c.loanId}*\nAmount Paid: *₹${payable}.00*\nPaid To UPI ID: *${systemConfig.upiId}*\nPayment Option: ${c.fineSelected ? '✅ Paid with ₹500 Fine' : '⚠️ Paid EMI Only (₹500 Fine Unpaid)'}\n\n📎 _Please find my payment screenshot attached below and update my loan account._`;
+        const msg = `*PAYMENT SCREENSHOT & CONFIRMATION - ${systemConfig.brandTitle}*\n\nCustomer Name: *${c.name}*\nCustomer Mobile: *${c.phone}*\nLoan ID: *${c.loanId}*\nCollection Agent: *${c.agentName || 'Chandan Das'}*\nAmount Paid: *₹${payable}.00*\nPaid To UPI ID: *${systemConfig.upiId}*\nPayment Option: ${c.fineSelected ? '✅ Paid with ₹500 Fine' : '⚠️ Paid EMI Only (₹500 Fine Unpaid)'}\n\n📎 _Please find my payment screenshot attached below and update my loan account._`;
         window.open(`https://api.whatsapp.com/send?phone=${companyWaPhone}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1416,14 +1481,14 @@
     }
 
     /* =========================================================
-       9. RESTRICTED CUSTOMER LINK + LINK QR GENERATOR
+       10. RESTRICTED CUSTOMER LINK + ZOOMABLE QR GENERATOR
        ========================================================= */
     function generateCustomerLink() {
         syncActiveCustomer();
         saveSystemConfig();
         const c = getActiveCustomer();
         const finalUrl = buildCustomerPortalUrl();
-        const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(finalUrl)}`;
+        const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(finalUrl)}`;
 
         const box = document.getElementById('inlineClickableLinkBox');
         const anchor = document.getElementById('clickableAnchorLink');
@@ -1460,7 +1525,7 @@
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         let custPhone = c.phone.replace(/\D/g, '');
         if (custPhone.length === 10) custPhone = "91" + custPhone;
-        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nTotal Payable: *₹${payable}.00*\n\n👉 *Click this official link to view your statement, pay via UPI, and send payment screenshot to ${systemConfig.companyPhone}:*\n${url}\n\n⚠️ _Non-payment of ₹500 bounce fine will impact your CIBIL score._`;
+        const msg = `*${systemConfig.brandTitle} - COLLECTION NOTICE*\n\nDear *${c.name}*,\nYour Loan ID *${c.loanId}* has an overdue installment.\nCollection Agent: *${c.agentName || 'Chandan Das'}*\nTotal Payable: *₹${payable}.00*\n\n👉 *Click this official link to view your statement, pay via UPI, and send payment screenshot:*\n${url}\n\n⚠️ _Non-payment of ₹500 bounce fine will impact your CIBIL score._`;
         window.open(`https://api.whatsapp.com/send?phone=${custPhone}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1470,7 +1535,7 @@
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         let custPhone = c.phone.replace(/\D/g, '');
         if (custPhone.length === 10) custPhone = "91" + custPhone;
-        const msg = `*${systemConfig.brandTitle} - DUE NOTICE*\n\nCustomer: *${c.name}*\nLoan ID: *${c.loanId}*\nCurrent Due: *₹${payable}.00* ${c.fineSelected ? '(Incl. ₹500 Fine)' : '(Fine Pending - CIBIL Alert!)'}\nUPI ID: *${systemConfig.upiId}*\nSend Screenshot To: *${systemConfig.companyPhone}*\n\nPlease clear your dues immediately to protect your CIBIL credit score.`;
+        const msg = `*${systemConfig.brandTitle} - DUE NOTICE*\n\nCustomer: *${c.name}*\nLoan ID: *${c.loanId}*\nCollection Agent: *${c.agentName || 'Chandan Das'}*\nCurrent Due: *₹${payable}.00* ${c.fineSelected ? '(Incl. ₹500 Fine)' : '(Fine Pending - CIBIL Alert!)'}\nUPI ID: *${systemConfig.upiId}*\n\nPlease clear your dues immediately to protect your CIBIL credit score.`;
         window.open(`https://api.whatsapp.com/send?phone=${custPhone}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -1488,7 +1553,7 @@
         const c = getActiveCustomer();
         const payable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
         const phoneClean = c.phone.replace(/\s+/g, '');
-        const smsText = `Dear ${c.name}, ${systemConfig.brandTitle} Loan (${c.loanId}) overdue is Rs.${payable}. Pay via UPI to ${systemConfig.upiId} & WhatsApp screenshot to ${systemConfig.companyPhone}. WARNING: Unpaid bounce fine of Rs.500 will damage your CIBIL score.`;
+        const smsText = `Dear ${c.name}, ${systemConfig.brandTitle} Loan (${c.loanId}) overdue is Rs.${payable}. Pay via UPI to ${systemConfig.upiId}. WARNING: Unpaid bounce fine of Rs.500 will damage your CIBIL score.`;
         window.location.href = `sms:${phoneClean}?body=${encodeURIComponent(smsText)}`;
     }
 
@@ -1502,11 +1567,10 @@
 
     function printBrandedStatement() {
         const c = getActiveCustomer();
-        const compPhone = systemConfig.companyPhone || DEFAULT_COMPANY_MOBILE;
         document.getElementById('printBrandTitle').textContent = systemConfig.brandTitle;
         document.getElementById('printBrandSub').textContent = systemConfig.brandSub;
-        document.getElementById('printCompanyPhone').textContent = "+91 " + compPhone;
-        document.getElementById('printFooterPhone').textContent = compPhone;
+        document.getElementById('printFooterAgent').textContent = c.agentName || "Chandan Das";
+        document.getElementById('printAgentName').textContent = c.agentName || "Chandan Das";
         document.getElementById('printCustPhoto').src = c.photo || DEFAULT_AVATAR;
         document.getElementById('printCustName').textContent = c.name;
         document.getElementById('printLoanId').textContent = c.loanId;
@@ -1523,7 +1587,6 @@
         document.getElementById('printFineStatus').textContent = c.fineSelected ? `₹500.00 (Included)` : `₹500.00 (Unpaid - CIBIL Warning)`;
         document.getElementById('printCurrentDue').textContent = `₹${currentDue.toLocaleString('en-IN')}.00`;
 
-        // Set both UPI QR and Portal Link QR on the Printable Statement
         document.getElementById('printUpiQrImg').src = document.getElementById('dynamicQrImg').src;
         const portalUrl = buildCustomerPortalUrl();
         document.getElementById('printPortalLinkQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(portalUrl)}`;
@@ -1549,7 +1612,7 @@
     }
 
     /* =========================================================
-       10. SECURITY PIN & SCREEN NAVIGATION
+       11. SECURITY PIN & SCREEN NAVIGATION
        ========================================================= */
     function openPinPrompt() {
         document.getElementById('pinInputField').value = "";
@@ -1558,10 +1621,10 @@
 
     function verifyAdminPin() {
         const pin = document.getElementById('pinInputField').value;
-        // Encoded check for secret PIN
         if (btoa(pin) === "OTczMw==") {
             closeAllModals();
             isCustomerLockedMode = false;
+            localStorage.removeItem(STORAGE_KEY_LOCK);
             document.body.classList.remove('customer-locked-mode');
             document.getElementById('topDbBar').style.display = 'flex';
             renderAdminAll();
@@ -1602,6 +1665,7 @@
 
     function closeAllModals() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        closeZoomedQrModal();
     }
 
     function startQrCountdown() {
