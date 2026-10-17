@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bharat Digital Finance - Official Payment & Notice Portal</title>
+    <title>Bharat Digital Finance - NBFC Recovery & Fine Collection Portal</title>
     <!-- Tesseract.js for Client-Side OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
@@ -24,7 +24,7 @@
         .app-shell { max-width: 500px; min-height: 100vh; margin: 0 auto; background: #ffffff; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.12); position: relative; }
 
         /* =========================================================
-           NEXT-LEVEL APP LOADING OVERLAY & SPINNER
+           APP LOADING OVERLAY & SPINNER
            ========================================================= */
         #appBootLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -68,7 +68,7 @@
 
         /* Smooth Interactive Clicks & Micro-Animations */
         .btn, .sm-btn, .icon-btn, .fine-option-btn, .quick-pay-btn, .upi-app-btn, .memory-item, .inst-item {
-            transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.2s ease !important;
+            transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease !important;
         }
         .btn:active, .sm-btn:active, .icon-btn:active, .fine-option-btn:active, .quick-pay-btn:active, .upi-app-btn:active {
             transform: scale(0.95) !important;
@@ -180,6 +180,15 @@
         .inst-right .utr { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
         .quick-pay-btn { margin-top: 4px; background: var(--primary-purple); color: white; border: none; padding: 4px 9px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; }
 
+        /* NBFC Legal Notice Banner */
+        .nbfc-notice-banner { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px; margin-bottom: 14px; font-size: 11.5px; color: #9f1239; line-height: 1.4; }
+        .nbfc-notice-banner strong { display: block; font-size: 12.5px; margin-bottom: 3px; }
+
+        /* Agreement Consent Checkbox Box */
+        .agreement-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 12px; margin-top: 12px; font-size: 11.5px; text-align: left; }
+        .agreement-box label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-weight: 600; color: var(--text-main); }
+        .agreement-box input[type="checkbox"] { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--primary-purple); }
+
         /* Fine & Active Due Payment Box */
         .due-Breakdown-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 6px; }
         .due-Breakdown-table td { padding: 6px 4px; border-bottom: 1px solid #f1f5f9; }
@@ -198,7 +207,7 @@
 
         /* Quick Advance EMI Pills */
         .advance-pills { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-        .adv-pill { background: #ede9fe; color: var(--dark-purple); border: 1px solid #c4b5fd; padding: 4px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; cursor: pointer; }
+        .adv-pill { background: #ede9fe; color: var(--dark-purple); border: 1px solid #c4b5fd; padding: 4px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; cursor: pointer; transition: transform 0.15s ease; }
         .adv-pill:active { transform: scale(0.94); }
 
         /* Payment Proof Upload Box */
@@ -295,7 +304,7 @@
     </div>
     <div class="spinner-ring"></div>
     <div class="loader-title" id="loaderMainText">BHARAT DIGITAL FINANCE</div>
-    <div class="loader-sub" id="loaderSubText">Initializing Encrypted Memory & Security Engine...</div>
+    <div class="loader-sub" id="loaderSubText">Initializing NBFC Recovery & Compliance Engine...</div>
 </div>
 
 <!-- INTERACTIVE TOAST NOTIFICATION -->
@@ -330,20 +339,18 @@
         </div>
 
         <div class="header-actions customer-only">
-            <span class="verified-customer-badge">🔒 Encrypted Link</span>
+            <span class="verified-customer-badge">🛡️ NBFC Secure</span>
         </div>
     </div>
 
     <!-- Persistent Database Bar (Officer Only) -->
-    <div class="db-status-bar officer-only" id="topDbBar">
+    <div class="db-status-bar officer-only" id="topDbBar" style="display: none;">
         <span>🗄️ DB (<span id="topBarCount">1</span>):</span>
         <select id="quickCustomerSelect" onchange="selectCustomerFromMemory(parseInt(this.value))"></select>
         <button class="sm-btn success" style="padding: 4px 8px;" onclick="openNewCustomerModal()">+ Add New</button>
     </div>
 
-    <!-- =========================================================
-         SCREEN 1: OFFICER ADMIN, MEMORY DB & DATA ENTRY WORKSPACE
-         ========================================================= -->
+    <!-- SCREEN 1: OFFICER ADMIN, MEMORY DB & DATA ENTRY WORKSPACE -->
     <div id="screenSetup" class="screen officer-only">
         
         <!-- MEMORY DATABASE MANAGER -->
@@ -351,7 +358,7 @@
             <div class="card-title">
                 <span>🗄️ 1. Customer Memory Database (<span id="memCount">0</span> Saved)</span>
                 <div style="display: flex; gap: 5px;">
-                    <button class="sm-btn success" onclick="openNewCustomerModal()">➕ Add New Customer</button>
+                    <button class="sm-btn success" onclick="openNewCustomerModal()">➕ New Customer</button>
                     <button class="sm-btn load" onclick="saveCurrentToDatabaseWithToast()">💾 Save</button>
                 </div>
             </div>
@@ -416,12 +423,20 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Monthly EMI Amount (₹)</label>
+                    <label>Loan Frequency</label>
+                    <select id="inputLoanType" class="form-control" onchange="syncActiveCustomer()">
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly" selected>Monthly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Installment Amount (₹)</label>
                     <input type="number" id="inputEmi" class="form-control" placeholder="1568" oninput="updateAllScheduledEmis(this.value)">
                 </div>
                 <div class="form-group">
-                    <label>Fixed Bounce Fine (₹)</label>
-                    <input type="number" id="inputFine" class="form-control" value="500" readonly style="background: #fee2e2; font-weight: 800; color: var(--danger-red);">
+                    <label>Editable Fine (₹)</label>
+                    <input type="number" id="inputFine" class="form-control" value="500" oninput="syncActiveCustomer()" style="font-weight: 800; color: var(--danger-red);">
                 </div>
             </div>
 
@@ -434,7 +449,7 @@
             </div>
         </div>
 
-        <!-- EDITABLE INSTALLMENT & PAYMENT HISTORY TABLE WITH QUICK NUMBER ADD -->
+        <!-- EDITABLE INSTALLMENT & PAYMENT HISTORY TABLE -->
         <div class="card" id="editableHistoryCard">
             <div class="card-title">
                 <span>📅 4. Installment & Payment History Data Entry</span>
@@ -457,10 +472,10 @@
             <div id="adminInstallmentEditor"></div>
         </div>
 
-        <!-- BRANDING, COMPANY MOBILE, UPI & SHORT ENCRYPTED LINK GENERATOR -->
+        <!-- BRANDING, COMPANY MOBILE, UPI & LINK GENERATOR WITH FINE-ONLY MODE -->
         <div class="card">
             <div class="card-title">
-                <span>🔐 5. High-Encryption Short Link & QR</span>
+                <span>🔐 5. NBFC Link Generator & Fine-Only Link Mode</span>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -474,23 +489,32 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Company Mobile (Hidden in Link)</label>
+                    <label>Company Mobile (For WhatsApp)</label>
                     <input type="text" id="inputCompanyPhone" class="form-control" value="9733322375" oninput="saveSystemConfig()">
                 </div>
                 <div class="form-group">
                     <label>Customer Fine Selection Option</label>
                     <select id="inputAllowFineSelection" class="form-control" onchange="saveSystemConfig()">
                         <option value="yes">Allow Customer to Select / Deselect Fine</option>
-                        <option value="no">Lock Fine (Mandatory ₹500 Fine)</option>
+                        <option value="no">Lock Fine (Mandatory Fine)</option>
                     </select>
                 </div>
             </div>
 
-            <button class="btn btn-primary" style="padding: 12px; font-size: 13px; margin-top: 6px;" onclick="generateEncryptedShortLink()">🔐 Generate Encrypted Short Customer Link & QR</button>
+            <!-- Toggle for Fine-Only Link -->
+            <div class="form-group" style="margin-top: 10px; background: #fffbeb; border: 1px solid #fde68a; padding: 10px; border-radius: 8px;">
+                <label style="color: #92400e; font-weight: 800;">🎯 Link Mode Selection</label>
+                <select id="inputLinkMode" class="form-control" style="background: white;">
+                    <option value="full">Full EMI & Fine Repayment Portal Link</option>
+                    <option value="fine">Fine-Only / Cash Bounce Charge Collection Link</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" style="padding: 12px; font-size: 13px; margin-top: 8px;" onclick="generateEncryptedShortLink()">🔐 Generate Encrypted Customer Link & QR</button>
             
             <div id="inlineClickableLinkBox" class="clickable-link-card" style="display: none;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-size: 10.5px; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:10px; font-weight:800;">🔒 AES/XOR-256 Cipher Encrypted</span>
+                    <span style="font-size: 10.5px; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:10px; font-weight:800;" id="linkModeBadgeLabel">🔒 Full Repayment Link</span>
                     <span style="font-size: 10px; color:#15803d; font-weight:700;" id="cipherLengthBadge">Ultra-Short Token</span>
                 </div>
                 
@@ -506,7 +530,7 @@
                     <button class="sm-btn load" style="padding: 8px;" onclick="copyGeneratedLink()">📋 Copy Short Link</button>
                     <button class="sm-btn success" style="padding: 8px;" onclick="shareLinkWhatsApp()">💬 Send on WhatsApp</button>
                     <button class="sm-btn" style="padding: 8px; background: #0f172a; color: white;" onclick="openZoomedQrModal()">🔍 Zoom View QR</button>
-                    <button class="sm-btn" style="padding: 8px; background:#cbd5e1;" onclick="previewCustomerLockedMode()">👁️ Test Customer Lock</button>
+                    <button class="sm-btn" style="padding: 8px; background:#cbd5e1;" onclick="previewCustomerLockedMode()">👁️ Preview Customer View</button>
                 </div>
             </div>
         </div>
@@ -516,9 +540,7 @@
         </div>
     </div>
 
-    <!-- =========================================================
-         SCREEN 2: COLLECTION & PAYMENT DASHBOARD
-         ========================================================= -->
+    <!-- SCREEN 2: COLLECTION & PAYMENT DASHBOARD -->
     <div id="screenDashboard" class="screen active">
         <!-- Top Purple Banner -->
         <div class="top-banner">
@@ -554,6 +576,12 @@
             </div>
         </div>
 
+        <!-- NBFC Official Notice Banner -->
+        <div class="nbfc-notice-banner customer-only">
+            <strong>⚠️ NBFC REGULATORY RECOVERY NOTICE</strong>
+            This is an official digital demand notice issued under the guidelines of Reserve Bank of India (RBI) Non-Banking Financial Company (NBFC) regulations. Failure to clear overdue EMIs and bounce penalty charges within 3 days shall attract immediate legal arbitration and CIBIL score default reporting.
+        </div>
+
         <!-- Officer Quick Bar on Dashboard -->
         <div class="officer-only" style="display:flex; gap:6px; margin-bottom:10px;">
             <button class="sm-btn load" style="flex:1; padding:8px;" onclick="showAdminScreen()">✏️ Edit Customer / DB</button>
@@ -563,7 +591,7 @@
 
         <!-- Filter & Total Row -->
         <div class="filter-row">
-            <div class="filter-pill">✓ ALL (<span id="dashInstCount">0</span>) ▾</div>
+            <div class="filter-pill">✓ ALL (<span id="dashInstCount">4</span>) ▾</div>
             <div style="font-weight: 800; font-size: 14px;" id="dashTotalRight">₹0</div>
         </div>
 
@@ -573,17 +601,17 @@
         <!-- Overdue / Bounce Payment Action Card -->
         <div class="card">
             <div class="card-title">
-                <span>💳 Current Due & Advance Payment</span>
+                <span id="dashboardCardTitleText">💳 Current Due & Advance Payment</span>
                 <span style="color: var(--danger-red); font-size: 11px;" id="activeDueDateBadge">Current Due</span>
             </div>
 
             <table class="due-Breakdown-table">
-                <tr>
+                <tr id="breakdownEmiRow">
                     <td>Active / Overdue Installment EMI</td>
                     <td id="breakdownEmi">₹1,568.00</td>
                 </tr>
                 <tr>
-                    <td>Bounce / Late Penalty (Fixed)</td>
+                    <td>Bounce / Late Penalty (Editable)</td>
                     <td id="breakdownFine" style="color: var(--danger-red);">₹500.00</td>
                 </tr>
                 <tr style="font-size: 14px; background: var(--light-purple);">
@@ -595,12 +623,12 @@
             <!-- Fine Selection / Deselection Options -->
             <div class="fine-choice-box" id="fineChoiceBoxContainer">
                 <div class="fine-choice-title">
-                    <span>Bounce Fine Option (₹500 Fixed):</span>
-                    <span id="fineStatusLabel">Included (₹500)</span>
+                    <span>Bounce Fine Option:</span>
+                    <span id="fineStatusLabel">Included</span>
                 </div>
                 <div class="fine-radio-group">
                     <button type="button" class="fine-option-btn active-with-fine" id="btnPayWithFine" onclick="setFineOption(true)">
-                        ✅ Select ₹500 Fine<br><span style="font-size:10px; font-weight:600;">(Protects CIBIL Score)</span>
+                        ✅ Select Fine<br><span style="font-size:10px; font-weight:600;">(Protects CIBIL Score)</span>
                     </button>
                     <button type="button" class="fine-option-btn" id="btnPayWithoutFine" onclick="setFineOption(false)">
                         ❌ Deselect Fine (₹0)<br><span style="font-size:10px; font-weight:600;">(EMI Only - CIBIL Risk)</span>
@@ -608,14 +636,9 @@
                 </div>
             </div>
 
-            <!-- CIBIL Warning Alert -->
-            <div class="warning-box" id="cibilWarningBox">
-                ⚠️ <strong>CIBIL & Legal Warning:</strong> Deselecting the ₹500 bounce fine keeps your loan account in default arrears, which will negatively impact your CIBIL credit score and may attract legal recovery action.
-            </div>
-
             <!-- Advance EMI & Calculator Multiplier Input -->
-            <div class="form-group" style="margin-top: 12px; text-align: left;">
-                <label style="color: var(--dark-purple); font-weight: 800;">💡 Pay Advance EMI / Custom Amount (₹)</label>
+            <div class="form-group" id="advanceEmiInputWrapper" style="margin-top: 12px; text-align: left;">
+                <label style="color: var(--dark-purple); font-weight: 800;">💡 Custom / Advance Payment Amount (₹)</label>
                 <input type="number" id="customPayAmountInput" class="form-control" style="font-size: 15px; font-weight: 700; color: var(--primary-purple); background: #fdf4ff; border-color: #f0abfc;" onchange="updateCustomPayAmount(this.value)">
                 <div class="advance-pills">
                     <span class="adv-pill" onclick="setAdvanceEmiMultiplier(1)">1 EMI (Min Due)</span>
@@ -623,6 +646,19 @@
                     <span class="adv-pill" onclick="setAdvanceEmiMultiplier(3)">3 EMIs (Advance)</span>
                     <span class="adv-pill" onclick="setAdvanceEmiMultiplier(0)">Full Close</span>
                 </div>
+            </div>
+
+            <!-- CIBIL Warning Alert -->
+            <div class="warning-box" id="cibilWarningBox">
+                ⚠️ <strong>CIBIL & Legal Warning:</strong> Deselecting the bounce fine keeps your loan account in default arrears, which will negatively impact your CIBIL credit score and may attract legal recovery action.
+            </div>
+
+            <!-- Loan Agreement & Digital Consent Form Checkbox (Customer Only) -->
+            <div class="agreement-box customer-only">
+                <label>
+                    <input type="checkbox" id="customerAgreementConsent" onchange="toggleAgreementConsent()">
+                    <span>I hereby declare that I am the borrower/authorized representative, and I agree to the <a href="#" onclick="openAgreementModal(event)" style="color:var(--primary-purple);">NBFC Loan Hypothecation Terms & Conditions</a> and digital consent guidelines.</span>
+                </label>
             </div>
 
             <!-- Dynamic UPI QR & Timer -->
@@ -637,9 +673,9 @@
             </div>
 
             <!-- Payment Proof & Amount Verification Card for Customer -->
-            <div class="payment-proof-card">
+            <div class="payment-proof-card customer-only" id="paymentProofCardSection" style="opacity: 0.5; pointer-events: none;">
                 <div style="font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">📤 Confirm Payment & Upload Screenshot</div>
-                <p style="font-size: 10.5px; color: #15803d; margin-bottom: 6px;">Already paid? Enter paid amount, attach screenshot & get instant confirmation:</p>
+                <p style="font-size: 10.5px; color: #15803d; margin-bottom: 6px;">(Please agree to the loan agreement above to enable submission)</p>
                 <div class="form-row" style="margin-bottom: 6px;">
                     <div class="form-group" style="text-align: left;">
                         <label style="color: #166534;">Paid Amount (₹)</label>
@@ -656,7 +692,7 @@
             </div>
 
             <!-- Customer Feedback & Promise-to-Pay Form -->
-            <div class="payment-proof-card" style="margin-top: 10px; background: #fffbeb; border-color: #fde68a;">
+            <div class="payment-proof-card customer-only" style="margin-top: 10px; background: #fffbeb; border-color: #fde68a;">
                 <div style="font-size: 12.5px; font-weight: 800; color: #92400e; margin-bottom: 4px;">📝 Customer Feedback & Promise-to-Pay</div>
                 <p style="font-size: 10.5px; color: #b45309; margin-bottom: 8px;">Request a payment date extension or send feedback to agent <strong id="feedbackAgentName">Chandan Das</strong>:</p>
                 
@@ -725,21 +761,65 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Monthly EMI (₹)</label>
-                    <input type="number" id="newCustEmi" class="form-control" value="1568">
+                    <label>Loan Frequency</label>
+                    <select id="newCustLoanType" class="form-control">
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly" selected>Monthly</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Total EMIs (Months)</label>
-                    <input type="number" id="newCustMonths" class="form-control" value="8" min="1" max="48">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="newCustEmi" class="form-control" value="1568">
                 </div>
             </div>
-            <div class="form-group">
-                <label>Collection Agent Name</label>
-                <input type="text" id="newCustAgent" class="form-control" value="Chandan Das">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Total Installments</label>
+                    <input type="number" id="newCustMonths" class="form-control" value="8" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Collection Agent</label>
+                    <input type="text" id="newCustAgent" class="form-control" value="Chandan Das">
+                </div>
             </div>
 
             <button class="btn btn-success" onclick="saveNewCustomerFromModal()">🚀 Create & Save Customer</button>
             <button class="btn btn-secondary" onclick="closeAllModals()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: NBFC LOAN AGREEMENT & TERMS POPUP
+         ========================================================= -->
+    <div class="modal-overlay" id="agreementModal">
+        <div class="modal" style="text-align: left; max-width: 420px;">
+            <h3 style="color: var(--dark-purple); text-align: center;">📜 NBFC Loan Hypothecation Agreement</h3>
+            <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 10px;">Bharat Digital Finance Limited - Digital Lending Terms</p>
+            
+            <div style="font-size: 11.5px; line-height: 1.5; color: var(--text-main); max-height: 220px; overflow-y: auto; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 12px;">
+                <strong>1. Repayment Obligation:</strong> The borrower agrees to repay the monthly/weekly/daily installments as per the agreed schedule without default.<br><br>
+                <strong>2. Bounce & Late Charges:</strong> In the event of ECS/NACH/UPI bounce or delay, a mandatory bounce penalty charge (default ₹500.00 or as specified by officer) shall be levied immediately.<br><br>
+                <strong>3. CIBIL Reporting:</strong> Persistent defaults exceeding 30 days will be reported to Credit Information Bureaus (CIBIL/Experian), adversely affecting credit score.<br><br>
+                <strong>4. Legal Recourse:</strong> The lender reserves full legal rights to initiate proceedings under Section 138 of the Negotiable Instruments Act and Arbitration & Conciliation Act for recovery of outstanding dues.
+            </div>
+
+            <button class="btn btn-primary" style="padding: 10px; font-size: 12.5px;" onclick="acceptAgreementFromModal()">✅ I Agree & Accept Terms</button>
+            <button class="btn btn-secondary" style="padding: 9px; font-size: 12px; margin-top: 6px;" onclick="closeAllModals()">Close</button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: INITIAL CUSTOMER DEMAND & WARNING POPUP
+         ========================================================= -->
+    <div class="modal-overlay" id="customerWarningDemandModal" style="display: none;">
+        <div class="modal">
+            <div style="width: 55px; height: 55px; background: #fee2e2; color: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 10px auto; border: 2px solid #fecaca;">⚠️</div>
+            <h3 style="color: #991b1b; font-size: 18px;">URGENT RECOVERY NOTICE</h3>
+            <p style="font-size: 12px; color: #334155; margin-bottom: 12px; line-height: 1.5;">
+                Dear Customer, your loan account has overdue installments and bounce penalty charges. Please clear your dues immediately to avoid legal action and CIBIL blacklisting.
+            </p>
+            <button class="btn btn-success" style="padding: 11px; font-size: 13px;" onclick="closeCustomerWarningModal()">I Understand & Proceed to Pay</button>
         </div>
     </div>
 
@@ -767,7 +847,7 @@
                 </div>
                 <div class="congrats-receipt-row">
                     <span style="color:#64748b;">Fine Status:</span>
-                    <strong id="cgFineStatus">Included (₹500)</strong>
+                    <strong id="cgFineStatus">Included</strong>
                 </div>
                 <div class="congrats-receipt-row">
                     <span style="color:#64748b;">UTR / Ref:</span>
@@ -852,13 +932,14 @@
                 <strong style="font-size: 15px;" id="printCustName">CUSTOMER NAME</strong><br>
                 <span>Loan Account ID: <strong id="printLoanId">BDFL-LOAN</strong></span><br>
                 <span>Customer Phone: <span id="printCustPhone">+91</span></span><br>
-                <span>Address: <span id="printCustAddress">Address</span></span>
+                <span>Address: <span id="printCustAddress">Address</span></span><br>
+                <span>Loan Type: <strong id="printLoanType">Monthly</strong></span>
             </div>
         </div>
         <div style="text-align: right; font-size: 12px; line-height: 1.6;">
             <span>Total Sanctioned: <strong id="printTotalSanctioned">₹0.00</strong></span><br>
             <span>Total Collected: <strong id="printTotalCollected" style="color: #15803d;">₹0.00</strong></span><br>
-            <span>Fixed Bounce Fine Status: <strong id="printFineStatus">₹500.00</strong></span><br>
+            <span>Bounce Fine Status: <strong id="printFineStatus">₹500.00</strong></span><br>
             <span style="font-size: 14px; color: #dc2626;">Current Payable Due: <strong id="printCurrentDue">₹0.00</strong></span>
         </div>
     </div>
@@ -928,7 +1009,7 @@
         <br><br>
         1. That you had availed a financial credit facility under Loan ID: <strong id="legalPrintLoanIdBody">BDFL-LOAN</strong> and agreed to abide by the repayment schedule.
         <br>
-        2. That your installment(s) amounting to <strong id="legalPrintDueAmt">₹2,068.00</strong> (Inclusive of overdue EMI and mandatory ₹500.00 bounce/ECS penalty charges) have bounced / remained unpaid despite repeated reminders by our field collection officer, <b id="legalPrintAgentInline">Chandan Das</b>.
+        2. That your installment(s) amounting to <strong id="legalPrintDueAmt">₹2,068.00</strong> (Inclusive of overdue EMI and mandatory penalty charges) have bounced / remained unpaid despite repeated reminders by our field collection officer, <b id="legalPrintAgentInline">Chandan Das</b>.
         <br>
         3. Your persistent default has adversely affected your <b>CIBIL Credit Score</b> and credit history.
         <br><br>
@@ -956,12 +1037,11 @@
     /* =========================================================
        1. HIGH-SECURITY CIPHER ENCRYPTION & ULTRA-SHORT LINK ENGINE
        ========================================================= */
-    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V20";
-    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V20";
-    const STORAGE_KEY_LOCK = "BDFL_CUSTOMER_LOCK_V20";
-    const STORAGE_KEY_FIRST_LINK = "BDFL_FIRST_LINK_PAYLOAD_V20";
+    const STORAGE_KEY_DB = "BDFL_ENTERPRISE_CUSTOMERS_V23";
+    const STORAGE_KEY_CFG = "BDFL_ENTERPRISE_CONFIG_V23";
+    const STORAGE_KEY_LOCK = "BDFL_CUSTOMER_LOCK_V23";
+    const STORAGE_KEY_FIRST_LINK = "BDFL_FIRST_LINK_PAYLOAD_V23";
     const CIPHER_SECRET_KEY = "BDFL#2026$CHANDAN@9733322375!KEY";
-    const FIXED_FINE = 500;
     const DEFAULT_COMPANY_MOBILE = "9733322375";
 
     const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(`
@@ -975,6 +1055,9 @@
     function encryptCompactPayload(obj) {
         const packed = [
             obj.n, obj.l, obj.p, obj.a, obj.ag, obj.e, obj.fs, obj.afs, obj.u, obj.bt, obj.cp,
+            obj.lt || "Monthly",
+            obj.f !== undefined ? obj.f : 500, // Dynamic Editable Fine
+            obj.lm || "full", // Link Mode ("full" or "fine")
             (obj.i || []).map(row => `${row[0]}~${row[1]}~${row[2]}~${row[4]}~${row[5]}`).join('|')
         ];
         const jsonStr = JSON.stringify(packed);
@@ -999,7 +1082,22 @@
         const jsonStr = decodeURIComponent(escape(utf8Bytes));
         const packed = JSON.parse(jsonStr);
         if (Array.isArray(packed)) {
-            const instRows = (packed[11] ? packed[11].split('|') : []).map(str => {
+            let instStr = "";
+            let fineAmt = 500;
+            let linkMode = "full";
+
+            if (packed.length >= 15) {
+                fineAmt = parseFloat(packed[12]) || 500;
+                linkMode = packed[13] || "full";
+                instStr = packed[14];
+            } else if (packed.length >= 14) {
+                fineAmt = parseFloat(packed[12]) || 500;
+                instStr = packed[13];
+            } else {
+                instStr = packed[12];
+            }
+
+            const instRows = (instStr ? instStr.split('|') : []).map(str => {
                 const parts = str.split('~');
                 const stCode = parts[2];
                 return {
@@ -1014,6 +1112,9 @@
             return {
                 n: packed[0], l: packed[1], p: packed[2], a: packed[3], ag: packed[4],
                 e: packed[5], fs: packed[6], afs: packed[7], u: packed[8], bt: packed[9], cp: packed[10],
+                lt: packed[11] || "Monthly",
+                f: fineAmt,
+                lm: linkMode,
                 i: instRows
             };
         }
@@ -1043,19 +1144,23 @@
         setTimeout(() => t.classList.remove('show'), 2600);
     }
 
-    function getCleanEmptyCustomer(customName = "NEW CUSTOMER", emiVal = 1568, totalMonths = 8, agent = "Chandan Das") {
+    function getCleanEmptyCustomer(customName = "NEW CUSTOMER", emiVal = 1568, totalMonths = 8, agent = "Chandan Das", lType = "Monthly") {
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const rows = [];
-        let baseDate = new Date(2026, 5, 7);
+        let baseDate = new Date(); 
         for (let i = 0; i < totalMonths; i++) {
-            let d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 7);
+            let d = new Date(baseDate);
+            if (lType === "Daily") d.setDate(d.getDate() + i);
+            else if (lType === "Weekly") d.setDate(d.getDate() + (i * 7));
+            else d.setMonth(d.getMonth() + i); 
+
             let dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}${String(d.getFullYear()).slice(-2)}`;
             rows.push({
                 no: i + 1,
                 date: dateStr,
                 status: i === 0 ? "Bounce" : "Scheduled",
                 collectedDate: i === 0 ? "In Progress (Bounce)" : "Scheduled",
-                utr: i === 0 ? "Overdue + ₹500 Fine" : "-",
+                utr: i === 0 ? "Overdue + Fine" : "-",
                 amount: emiVal
             });
         }
@@ -1066,6 +1171,7 @@
             phone: "+91 9800000000",
             address: "Harishchandrapur, Malda - 732125",
             agentName: agent,
+            loanType: lType,
             emi: emiVal,
             fine: 500,
             fineSelected: true,
@@ -1084,6 +1190,7 @@
         allowFineSelection: "yes"
     };
     let isCustomerLockedMode = false;
+    let isFineOnlyMode = false;
     let qrTimerSeconds = 600;
     let qrInterval = null;
     let secretTapCount = 0;
@@ -1111,6 +1218,8 @@
                 restoreFirstSavedLinkData();
             }
             showDashboardScreen();
+            // Show initial warning modal to customer
+            document.getElementById('customerWarningDemandModal').style.display = 'flex';
         } else if (lockTimestamp && (now - parseInt(lockTimestamp) < twentyFourHours)) {
             enableStrictCustomerMode();
             restoreFirstSavedLinkData();
@@ -1140,6 +1249,8 @@
                 systemConfig.brandTitle = raw.bt || systemConfig.brandTitle;
                 systemConfig.companyPhone = raw.cp || DEFAULT_COMPANY_MOBILE;
                 systemConfig.allowFineSelection = raw.afs !== undefined ? raw.afs : "yes";
+                isFineOnlyMode = raw.lm === "fine";
+
                 const customerObj = {
                     id: "cust_link",
                     name: raw.n || raw.name,
@@ -1147,8 +1258,9 @@
                     phone: raw.p || raw.phone,
                     address: raw.a || raw.address,
                     agentName: raw.ag || raw.agentName || "Chandan Das",
+                    loanType: raw.lt || "Monthly",
                     emi: parseFloat(raw.e || raw.emi) || 1568,
-                    fine: 500,
+                    fine: parseFloat(raw.f || raw.fine) || 500,
                     fineSelected: raw.fs !== undefined ? (raw.fs === 1) : (raw.fineSelected !== false),
                     photo: raw.photo || DEFAULT_AVATAR,
                     installments: (raw.i || raw.installments || []).map(arr => Array.isArray(arr) ? {
@@ -1164,7 +1276,7 @@
                 activeCustomerIndex = 0;
                 
                 if (!localStorage.getItem(STORAGE_KEY_FIRST_LINK)) {
-                    localStorage.setItem(STORAGE_KEY_FIRST_LINK, JSON.stringify({ customer: customerObj, cfg: systemConfig }));
+                    localStorage.setItem(STORAGE_KEY_FIRST_LINK, JSON.stringify({ customer: customerObj, cfg: systemConfig, lm: raw.lm }));
                 }
                 return true;
             }
@@ -1181,6 +1293,7 @@
                 const parsed = JSON.parse(savedFirst);
                 if (parsed.customer) customersDB[0] = parsed.customer;
                 if (parsed.cfg) systemConfig = { ...systemConfig, ...parsed.cfg };
+                if (parsed.lm) isFineOnlyMode = (parsed.lm === "fine");
                 activeCustomerIndex = 0;
             } catch (e) {}
         }
@@ -1194,6 +1307,9 @@
     }
 
     function previewCustomerLockedMode() {
+        const linkMode = document.getElementById('inputLinkMode').value || "full";
+        isFineOnlyMode = (linkMode === "fine");
+
         showLoader("Activating 24-Hr Lock...", "Simulating customer encrypted view");
         setTimeout(() => {
             localStorage.setItem(STORAGE_KEY_LOCK, Date.now().toString());
@@ -1201,6 +1317,7 @@
             renderDashboardView();
             hideLoader(200);
             showToast("🔒 Customer Lock Mode Active (Tap Logo 5x to Unlock)");
+            document.getElementById('customerWarningDemandModal').style.display = 'flex';
         }, 400);
     }
 
@@ -1220,6 +1337,8 @@
             try {
                 const parsed = JSON.parse(savedCfg);
                 systemConfig = { ...systemConfig, ...parsed };
+                if (!systemConfig.companyPhone) systemConfig.companyPhone = DEFAULT_COMPANY_MOBILE;
+                if (!systemConfig.allowFineSelection) systemConfig.allowFineSelection = "yes";
             } catch(e){}
         }
         const savedDb = localStorage.getItem(STORAGE_KEY_DB);
@@ -1266,6 +1385,7 @@
         document.getElementById('newCustLoanId').value = "BDFL-LN-" + Math.floor(10000 + Math.random() * 90000);
         document.getElementById('newCustPhone').value = "+91 ";
         document.getElementById('newCustAddress').value = "Harishchandrapur, Malda - 732125";
+        document.getElementById('newCustLoanType').value = "Monthly";
         document.getElementById('newCustEmi').value = "1568";
         document.getElementById('newCustMonths').value = "8";
         document.getElementById('newCustAgent').value = "Chandan Das";
@@ -1278,16 +1398,18 @@
         const loanVal = document.getElementById('newCustLoanId').value.trim() || ("BDFL-LN-" + Math.floor(10000 + Math.random() * 90000));
         const phoneVal = document.getElementById('newCustPhone').value.trim() || "+91 9800000000";
         const addrVal = document.getElementById('newCustAddress').value.trim() || "Harishchandrapur, Malda";
+        const lTypeVal = document.getElementById('newCustLoanType').value || "Monthly";
         const emiVal = parseFloat(document.getElementById('newCustEmi').value) || 1568;
         const monthsVal = parseInt(document.getElementById('newCustMonths').value) || 8;
         const agentVal = document.getElementById('newCustAgent').value.trim() || "Chandan Das";
 
-        showLoader("Creating Customer...", `Setting up ${monthsVal} EMI schedule for${nameVal}`);
+        showLoader("Creating Customer...", `Setting up ${monthsVal} ${lTypeVal} schedule for${nameVal}`);
         
-        const newCust = getCleanEmptyCustomer(nameVal, emiVal, monthsVal, agentVal);
+        const newCust = getCleanEmptyCustomer(nameVal, emiVal, monthsVal, agentVal, lTypeVal);
         newCust.loanId = loanVal;
         newCust.phone = phoneVal;
         newCust.address = addrVal;
+        newCust.fine = 500;
 
         if (customersDB.length === 1 && customersDB[0].name === "ENTER CUSTOMER NAME") {
             customersDB[0] = newCust;
@@ -1371,13 +1493,10 @@
     function deleteCustomerFromMemory(idx) {
         if (confirm("Delete this customer record from Memory Database?")) {
             customersDB.splice(idx, 1);
-            if (customersDB.length === 0) {
-                customersDB.push(getCleanEmptyCustomer("NEW CUSTOMER", 1568, 8, "Chandan Das"));
-            }
             activeCustomerIndex = 0;
             saveToLocalStorage();
             renderAdminAll();
-            renderDashboardView();
+            if(customersDB.length > 0) renderDashboardView();
             showToast("🗑️ Customer removed from DB");
         }
     }
@@ -1498,7 +1617,7 @@
                     } else if (idx === utrMatches.length) {
                         st = "Bounce";
                         colDt = "In Progress (Bounce)";
-                        utrCode = "Overdue + ₹500 Fine";
+                        utrCode = "Overdue + Fine";
                     }
                     return {
                         no: idx + 1,
@@ -1517,7 +1636,7 @@
         renderDashboardView();
         showToast("🤖 OCR Data Applied to Customer!");
 
-        statusEl.innerHTML = `✅ <strong>OCR Applied!</strong> Customer: <u>${c.name}</u> \vert{} EMI: ₹${c.emi}`;
+        statusEl.innerHTML = `✅ <strong>OCR Applied!</strong> Customer: <u>${c.name}</u> \vert{} Amount: ₹${c.emi}`;
         const profCard = document.getElementById('editableProfileCard');
         profCard.classList.add('ocr-highlight');
         setTimeout(() => profCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
@@ -1535,7 +1654,9 @@
         document.getElementById('inputPhone').value = c.phone;
         document.getElementById('inputAddress').value = c.address;
         document.getElementById('inputAgentName').value = c.agentName || "Chandan Das";
+        document.getElementById('inputLoanType').value = c.loanType || "Monthly";
         document.getElementById('inputEmi').value = c.emi;
+        document.getElementById('inputFine').value = c.fine !== undefined ? c.fine : 500;
         document.getElementById('setupPhotoPreview').src = c.photo || DEFAULT_AVATAR;
     }
 
@@ -1547,6 +1668,8 @@
         c.phone = document.getElementById('inputPhone').value;
         c.address = document.getElementById('inputAddress').value;
         c.agentName = document.getElementById('inputAgentName').value || "Chandan Das";
+        c.loanType = document.getElementById('inputLoanType').value || "Monthly";
+        c.fine = parseFloat(document.getElementById('inputFine').value) || 0;
         saveToLocalStorage();
         renderMemoryCustomerList();
     }
@@ -1632,17 +1755,26 @@
         const countInput = document.getElementById('quickAddCountInput');
         const totalRows = parseInt(countInput.value) || 8;
         const c = getActiveCustomer();
+        const lType = c.loanType || "Monthly";
         c.installments = [];
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        let baseDate = new Date(2026, 5, 7);
+        let baseDate = new Date(); 
 
         for (let i = 0; i < totalRows; i++) {
-            let d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 7);
+            let d = new Date(baseDate);
+            if (lType === 'Daily') {
+                d.setDate(d.getDate() + i);
+            } else if (lType === 'Weekly') {
+                d.setDate(d.getDate() + (i * 7));
+            } else {
+                d.setMonth(d.getMonth() + i);
+            }
+
             let dateStr = `${d.getDate()} ${monthNames[d.getMonth()]}${String(d.getFullYear()).slice(-2)}`;
             let st = i === 0 ? "Bounce" : "Scheduled";
             let colDt = i === 0 ? "In Progress (Bounce)" : "Scheduled";
-            let utrStr = i === 0 ? "Overdue + ₹500 Fine" : "-";
+            let utrStr = i === 0 ? "Overdue + Fine" : "-";
 
             c.installments.push({
                 no: i + 1,
@@ -1657,7 +1789,7 @@
         saveToLocalStorage();
         renderAdminInstallmentEditor();
         renderMemoryCustomerList();
-        showToast(`⚡ Generated ${totalRows} EMI Rows!`);
+        showToast(`⚡ Generated ${totalRows}${lType} EMI Rows!`);
     }
 
     function addInstallmentRow() {
@@ -1702,6 +1834,7 @@
             i.utr,
             i.amount
         ]);
+        const linkMode = document.getElementById('inputLinkMode').value || "full";
         const payloadObj = {
             n: c.name,
             l: c.loanId,
@@ -1714,11 +1847,14 @@
             u: systemConfig.upiId,
             bt: systemConfig.brandTitle,
             cp: systemConfig.companyPhone || DEFAULT_COMPANY_MOBILE,
+            lt: c.loanType || "Monthly",
+            f: c.fine !== undefined ? c.fine : 500,
+            lm: linkMode,
             i: compactInst
         };
-        const encryptedToken = encryptCompactPayload(payloadObj);
+        const base64Payload = btoa(unescape(encodeURIComponent(JSON.stringify(payloadObj))));
         const baseUrl = window.location.href.split('?')[0];
-        return `${baseUrl}?k=${encryptedToken}`;
+        return `${baseUrl}?k=${base64Payload}`;
     }
 
     function generateEncryptedShortLink() {
@@ -1730,31 +1866,31 @@
         syncActiveCustomer();
         saveSystemConfig();
         setTimeout(() => {
-            const c = getActiveCustomer();
             const finalUrl = buildCustomerPortalUrl();
             const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(finalUrl)}`;
 
             const box = document.getElementById('inlineClickableLinkBox');
             const anchor = document.getElementById('clickableAnchorLink');
             const qrImg = document.getElementById('portalLinkQrImg');
+            const linkMode = document.getElementById('inputLinkMode').value;
 
             box.style.display = 'block';
             anchor.href = finalUrl;
-            // Display short visual link
             const shortDisplay = finalUrl.length > 68 ? (finalUrl.slice(0, 52) + "..." + finalUrl.slice(-12)) : finalUrl;
             anchor.textContent = shortDisplay;
             anchor.dataset.fullurl = finalUrl;
             qrImg.src = qrImgUrl;
+            document.getElementById('linkModeBadgeLabel').textContent = linkMode === 'fine' ? "🎯 Fine-Only Collection Link" : "🔒 Full Repayment Link";
             document.getElementById('cipherLengthBadge').textContent = `Token: ${finalUrl.split('?k=')[1].length} chars`;
 
             renderDashboardView();
             hideLoader(250);
-            showToast("🔐 Short Encrypted Link Generated!");
+            showToast("🔐 Encrypted Link Generated!");
         }, 350);
     }
 
     /* =========================================================
-       7. ZOOMABLE LINK QR MODAL
+       7. ZOOMABLE LINK QR MODAL & AGREEMENT MODAL
        ========================================================= */
     function openZoomedQrModal() {
         const portalUrl = buildCustomerPortalUrl();
@@ -1771,7 +1907,8 @@
     function openZoomedUpiQrModal() {
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
-        const minPayable = c.fineSelected ? (c.emi + FIXED_FINE) : c.emi;
+        const fineAmt = parseFloat(c.fine) || 0;
+        const minPayable = isFineOnlyMode ? fineAmt : (c.fineSelected ? (c.emi + fineAmt) : c.emi);
         const finalAmt = customPayOverride !== null ? Math.max(minPayable, customPayOverride) : minPayable;
         const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${finalAmt}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
         const bigUpiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
@@ -1781,15 +1918,77 @@
         document.getElementById('zoomQrModal').style.display = 'flex';
     }
 
+    function openAgreementModal(e) {
+        if(e) e.preventDefault();
+        document.getElementById('agreementModal').style.display = 'flex';
+    }
+
+    function acceptAgreementFromModal() {
+        document.getElementById('customerAgreementConsent').checked = true;
+        toggleAgreementConsent();
+        closeAllModals();
+        showToast("✅ Agreement & Consent Accepted!");
+    }
+
+    function toggleAgreementConsent() {
+        const isChecked = document.getElementById('customerAgreementConsent').checked;
+        const proofCard = document.getElementById('paymentProofCardSection');
+        if (isChecked) {
+            proofCard.style.opacity = "1";
+            proofCard.style.pointerEvents = "auto";
+        } else {
+            proofCard.style.opacity = "0.5";
+            proofCard.style.pointerEvents = "none";
+        }
+    }
+
+    function closeCustomerWarningModal() {
+        document.getElementById('customerWarningDemandModal').style.display = 'none';
+    }
+
     /* =========================================================
        8. DASHBOARD RENDERING, FINE TOGGLE & ADVANCE EMI LOGIC
        ========================================================= */
     function renderDashboardView() {
-        if(customersDB.length === 0) {
-            document.getElementById('screenDashboard').innerHTML = `<div style="padding:40px;text-align:center;"><h3>No Active Customer</h3><p style="font-size:12px; color:#64748b;">Please login via the key icon and add a customer to see the dashboard.</p></div>`;
-            return;
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('p') || urlParams.has('payload') || urlParams.has('k')) {
+            try {
+                const token = urlParams.get('k') || urlParams.get('p') || urlParams.get('payload');
+                const raw = decryptCompactPayload(decodeURIComponent(token));
+                if (raw && (raw.n || raw.name)) {
+                    systemConfig.upiId = raw.u || systemConfig.upiId;
+                    systemConfig.brandTitle = raw.bt || systemConfig.brandTitle;
+                    systemConfig.companyPhone = raw.cp || DEFAULT_COMPANY_MOBILE;
+                    systemConfig.allowFineSelection = raw.afs !== undefined ? raw.afs : "yes";
+                    isFineOnlyMode = raw.lm === "fine";
+
+                    customersDB[0] = {
+                        id: "cust_link",
+                        name: raw.n || raw.name,
+                        loanId: raw.l || raw.loanId,
+                        phone: raw.p || raw.phone,
+                        address: raw.a || raw.address,
+                        agentName: raw.ag || raw.agentName || "Chandan Das",
+                        loanType: raw.lt || "Monthly",
+                        emi: parseFloat(raw.e || raw.emi) || 1568,
+                        fine: parseFloat(raw.f || raw.fine) || 500,
+                        fineSelected: raw.fs !== undefined ? (raw.fs === 1) : (raw.fineSelected !== false),
+                        photo: raw.photo || DEFAULT_AVATAR,
+                        installments: (raw.i || raw.installments || []).map(arr => Array.isArray(arr) ? {
+                            no: arr[0],
+                            date: arr[1],
+                            status: arr[2] === 'C' ? 'Collected' : (arr[2] === 'B' ? 'Bounce' : 'Scheduled'),
+                            collectedDate: arr[3],
+                            utr: arr[4],
+                            amount: arr[5]
+                        } : arr)
+                    };
+                    activeCustomerIndex = 0;
+                }
+            } catch (e) { console.error("Dashboard decode error", e); }
         }
 
+        if(customersDB.length === 0) return;
         const c = getActiveCustomer();
         applySystemBranding();
 
@@ -1824,8 +2023,10 @@
             const isPaid = inst.status === 'Collected';
             const isBounce = inst.status === 'Bounce';
             const badgeClass = isPaid ? 'paid' : (isBounce ? 'progress' : 'scheduled');
+            const fineAmt = parseFloat(c.fine) || 500;
+            const fineAmtStr = fineAmt ? ` + ₹${fineAmt} Fine` : '';
             
-            let subText = isPaid ? `Collected on ${inst.collectedDate || inst.date}` : (isBounce ? `In Progress (Bounce + ₹500 Fine)` : `Scheduled`);
+            let subText = isPaid ? `Collected on ${inst.collectedDate || inst.date}` : (isBounce ? `In Progress (Bounce${fineAmtStr})` : `Scheduled`);
             let utrText = isPaid ? `UTR: ${inst.utr}` : (isBounce ? `Overdue - Action Required` : ``);
 
             const card = document.createElement('div');
@@ -1848,6 +2049,8 @@
         });
 
         const activeEmiAmt = activeDueInst ? (parseFloat(activeDueInst.amount) || c.emi) : c.emi;
+        const fineAmt = parseFloat(c.fine) || 0;
+
         document.getElementById('activeDueDateBadge').textContent = activeDueInst ? `Installment #${activeDueInst.no} (${activeDueInst.date})` : `Current Due`;
         document.getElementById('breakdownEmi').textContent = `₹${activeEmiAmt.toFixed(2)}`;
 
@@ -1856,36 +2059,64 @@
         const btnWithoutFine = document.getElementById('btnPayWithoutFine');
         const fineLabel = document.getElementById('fineStatusLabel');
         const warnBox = document.getElementById('cibilWarningBox');
+        const emiRow = document.getElementById('breakdownEmiRow');
+        const advInputWrapper = document.getElementById('advanceEmiInputWrapper');
+        const cardTitleText = document.getElementById('dashboardCardTitleText');
 
-        if (systemConfig.allowFineSelection === "no") {
+        // Fine-Only Mode adaptation
+        if (isFineOnlyMode) {
+            cardTitleText.textContent = "🎯 Fine-Only Collection Mode (Bounce Charge)";
+            emiRow.style.display = "none";
             fineBoxContainer.style.display = "none";
-            document.getElementById('breakdownFine').textContent = `₹${FIXED_FINE.toFixed(2)} (Mandatory)`;
-            warnBox.classList.remove('active');
+            advInputWrapper.style.display = "none";
+            warnBox.classList.add('active');
+            warnBox.innerHTML = `⚠️ <strong>Notice:</strong> You are paying the penalty/bounce collection charge of ₹${fineAmt}.00 for Loan ID <b>${c.loanId}</b>.`;
+            document.getElementById('breakdownFine').textContent = `₹${fineAmt.toFixed(2)}`;
+            document.getElementById('breakdownTotal').textContent = `₹${fineAmt.toFixed(2)}`;
         } else {
-            fineBoxContainer.style.display = "block";
-            if (c.fineSelected) {
-                document.getElementById('breakdownFine').textContent = `₹${FIXED_FINE.toFixed(2)}`;
-                btnWithFine.className = "fine-option-btn active-with-fine";
-                btnWithoutFine.className = "fine-option-btn";
-                fineLabel.textContent = "Included (₹500)";
-                fineLabel.style.color = "#065f46";
+            cardTitleText.textContent = "💳 Current Due & Advance Payment";
+            emiRow.style.display = "table-row";
+            advInputWrapper.style.display = "block";
+
+            if (systemConfig.allowFineSelection === "no") {
+                fineBoxContainer.style.display = "none";
+                document.getElementById('breakdownFine').textContent = `₹${fineAmt.toFixed(2)} (Mandatory)`;
+                document.getElementById('breakdownTotal').textContent = `₹${(activeEmiAmt + fineAmt).toFixed(2)}`;
                 warnBox.classList.remove('active');
             } else {
-                document.getElementById('breakdownFine').textContent = `₹0.00 (Deselected)`;
-                btnWithFine.className = "fine-option-btn";
-                btnWithoutFine.className = "fine-option-btn active-no-fine";
-                fineLabel.textContent = "Deselected (CIBIL Risk)";
-                fineLabel.style.color = "#dc2626";
-                warnBox.classList.add('active');
+                fineBoxContainer.style.display = "block";
+                btnWithFine.innerHTML = `✅ Select ₹${fineAmt} Fine<br><span style="font-size:10px; font-weight:600;">(Protects CIBIL Score)</span>`;
+                btnWithoutFine.innerHTML = `❌ Deselect Fine (₹0)<br><span style="font-size:10px; font-weight:600;">(EMI Only - CIBIL Risk)</span>`;
+                warnBox.innerHTML = `⚠️ <strong>CIBIL & Legal Warning:</strong> Deselecting the ₹${fineAmt} bounce fine keeps your loan account in default arrears, which will negatively impact your CIBIL credit score and may attract legal recovery action.`;
+                
+                if (c.fineSelected) {
+                    document.getElementById('breakdownFine').textContent = `₹${fineAmt.toFixed(2)}`;
+                    document.getElementById('breakdownTotal').textContent = `₹${(activeEmiAmt + fineAmt).toFixed(2)}`;
+                    btnWithFine.className = "fine-option-btn active-with-fine";
+                    btnWithoutFine.className = "fine-option-btn";
+                    fineLabel.textContent = `Included (₹${fineAmt})`;
+                    fineLabel.style.color = "#065f46";
+                    warnBox.classList.remove('active');
+                } else {
+                    document.getElementById('breakdownFine').textContent = `₹0.00 (Deselected)`;
+                    document.getElementById('breakdownTotal').textContent = `₹${activeEmiAmt.toFixed(2)}`;
+                    btnWithFine.className = "fine-option-btn";
+                    btnWithoutFine.className = "fine-option-btn active-no-fine";
+                    fineLabel.textContent = "Deselected (CIBIL Risk)";
+                    fineLabel.style.color = "#dc2626";
+                    warnBox.classList.add('active');
+                }
             }
         }
 
-        const minimumPayable = c.fineSelected ? (activeEmiAmt + FIXED_FINE) : activeEmiAmt;
+        const minimumPayable = isFineOnlyMode ? fineAmt : (c.fineSelected ? (activeEmiAmt + fineAmt) : activeEmiAmt);
         if (customPayOverride === null || customPayOverride < minimumPayable) {
             customPayOverride = minimumPayable;
         }
         document.getElementById('customPayAmountInput').value = customPayOverride;
-        document.getElementById('breakdownTotal').textContent = `₹${customPayOverride.toFixed(2)}`;
+        if (!isFineOnlyMode) {
+            document.getElementById('breakdownTotal').textContent = `₹${customPayOverride.toFixed(2)}`;
+        }
 
         const finalPayableAmt = Math.max(minimumPayable, customPayOverride);
         const upiUri = `upi://pay?pa=${systemConfig.upiId}&pn=${encodeURIComponent(systemConfig.brandTitle)}&am=${finalPayableAmt}.00&cu=INR&tn=${encodeURIComponent(c.loanId)}`;
@@ -1903,20 +2134,21 @@
     }
 
     function setFineOption(includeFine) {
-        if (systemConfig.allowFineSelection === "no" || customersDB.length === 0) return;
+        if (systemConfig.allowFineSelection === "no" || customersDB.length === 0 || isFineOnlyMode) return;
         const c = getActiveCustomer();
         c.fineSelected = includeFine;
         customPayOverride = null; 
         saveToLocalStorage();
         renderDashboardView();
-        showToast(includeFine ? "✅ ₹500 Fine Selected" : "⚠️ Fine Deselected (CIBIL Warning)");
+        const fineAmt = parseFloat(c.fine) || 500;
+        showToast(includeFine ? `✅ ₹${fineAmt} Fine Selected` : "⚠️ Fine Deselected (CIBIL Warning)");
     }
 
     function setAdvanceEmiMultiplier(count) {
-        if(customersDB.length === 0) return;
+        if(customersDB.length === 0 || isFineOnlyMode) return;
         const c = getActiveCustomer();
         const baseEmi = parseFloat(c.emi) || 1568;
-        const fineAmt = c.fineSelected ? FIXED_FINE : 0;
+        const fineAmt = c.fineSelected ? (parseFloat(c.fine) || 500) : 0;
         if (count === 0) {
             const unpaidTotal = c.installments.filter(i => i.status !== 'Collected').reduce((s, i) => s + (parseFloat(i.amount)||baseEmi), 0);
             customPayOverride = Math.max(baseEmi + fineAmt, unpaidTotal + fineAmt);
@@ -1931,7 +2163,8 @@
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
         const baseEmi = parseFloat(c.emi) || 1568;
-        const minimumPayable = c.fineSelected ? (baseEmi + FIXED_FINE) : baseEmi;
+        const fineAmt = parseFloat(c.fine) || 500;
+        const minimumPayable = isFineOnlyMode ? fineAmt : (c.fineSelected ? (baseEmi + fineAmt) : baseEmi);
         const entered = parseFloat(val);
 
         if (!isNaN(entered)) {
@@ -1952,7 +2185,8 @@
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
         const baseEmi = parseFloat(c.emi) || 1568;
-        const minimumPayable = c.fineSelected ? (baseEmi + FIXED_FINE) : baseEmi;
+        const fineAmt = parseFloat(c.fine) || 500;
+        const minimumPayable = isFineOnlyMode ? fineAmt : (c.fineSelected ? (baseEmi + fineAmt) : baseEmi);
 
         const inputField = document.getElementById('customerPaidAmountInput');
         const statusNotice = document.getElementById('paymentMatchStatusNotice');
@@ -1960,7 +2194,7 @@
 
         const enteredVal = parseFloat(inputField.value);
         if (isNaN(enteredVal)) {
-            statusNotice.textContent = `⚠️ Expected Amount: ₹${customPayOverride || minimumPayable} (${c.fineSelected ? 'With ₹500 Fine' : 'Without Fine'})`;
+            statusNotice.textContent = `⚠️ Expected Amount: ₹${customPayOverride || minimumPayable}`;
             statusNotice.style.color = "#b45309";
             return;
         }
@@ -1968,11 +2202,11 @@
         if (enteredVal >= minimumPayable) {
             const advanceDiff = enteredVal - minimumPayable;
             if (advanceDiff > 0) {
-                statusNotice.textContent = `✅ Matched! ₹${enteredVal} (Includes ₹${minimumPayable} Due + ₹${advanceDiff} Advance EMI).`;
+                statusNotice.textContent = `✅ Matched! ₹${enteredVal} (Includes ₹${minimumPayable} Due + ₹${advanceDiff} Advance).`;
                 statusNotice.style.color = "#15803d";
             } else {
-                statusNotice.textContent = `✅ Matched! ₹${enteredVal} (${c.fineSelected ? 'EMI + ₹500 Fine Paid' : 'EMI Only - Fine Unpaid'}).`;
-                statusNotice.style.color = c.fineSelected ? "#15803d" : "#d97706";
+                statusNotice.textContent = `✅ Matched! ₹${enteredVal} (Exact Due Paid).`;
+                statusNotice.style.color = "#15803d";
             }
         } else {
             statusNotice.textContent = `❌ Mismatch: ₹${enteredVal} is less than minimum required ₹${minimumPayable}.`;
@@ -1988,12 +2222,13 @@
     function showCongratulationsModal(paidAmount, utrString) {
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
+        const fineAmt = parseFloat(c.fine) || 500;
         lastConfirmedReceipt = { amount: paidAmount, utr: utrString };
 
         document.getElementById('cgCustName').textContent = c.name;
         document.getElementById('cgLoanId').textContent = c.loanId;
         document.getElementById('cgAmount').textContent = `₹${parseFloat(paidAmount).toLocaleString('en-IN')}.00`;
-        document.getElementById('cgFineStatus').textContent = c.fineSelected ? "✅ Included (₹500)" : "⚠️ Unpaid (CIBIL Risk)";
+        document.getElementById('cgFineStatus').textContent = isFineOnlyMode ? "✅ Fine / Bounce Charge Paid" : (c.fineSelected ? `✅ Included (₹${fineAmt})` : "⚠️ Unpaid (CIBIL Risk)");
         document.getElementById('cgFineStatus').style.color = c.fineSelected ? "#15803d" : "#dc2626";
         document.getElementById('cgUtr').textContent = utrString;
 
@@ -2004,7 +2239,8 @@
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
         const baseEmi = parseFloat(c.emi) || 1568;
-        const minimumPayable = c.fineSelected ? (baseEmi + FIXED_FINE) : baseEmi;
+        const fineAmt = parseFloat(c.fine) || 500;
+        const minimumPayable = isFineOnlyMode ? fineAmt : (c.fineSelected ? (baseEmi + fineAmt) : baseEmi);
         const enteredVal = parseFloat(document.getElementById('customerPaidAmountInput').value) || customPayOverride || minimumPayable;
         const utrVal = document.getElementById('customerPaidUtrInput').value.trim() || ("UPI" + Date.now().toString().slice(-8));
 
@@ -2031,9 +2267,10 @@
     function dispatchCongratsWhatsApp() {
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
+        const fineAmt = parseFloat(c.fine) || 500;
         const companyWaPhone = getFormattedCompanyMobile(true);
         const agent = c.agentName || "Chandan Das";
-        const msg = `*🎉 PAYMENT COMPLETED & RECEIPT - ${systemConfig.brandTitle}*\n\nCustomer Name: *${c.name}*\nCustomer Mobile: *${c.phone}*\nLoan ID: *${c.loanId}*\nCollection Agent: *${agent}*\nAmount Paid: *₹${lastConfirmedReceipt.amount}.00*\nFine Status: ${c.fineSelected ? '✅ Paid with ₹500 Fine' : '⚠️ Fine Deselected (EMI Only)'}\nUTR / Ref No: *${lastConfirmedReceipt.utr}*\n\n📎 _Please find my payment screenshot attached._`;
+        const msg = `*🎉 PAYMENT COMPLETED & RECEIPT - ${systemConfig.brandTitle}*\n\nCustomer Name: *${c.name}*\nCustomer Mobile: *${c.phone}*\nLoan ID: *${c.loanId}*\nCollection Agent: *${agent}*\nAmount Paid: *₹${lastConfirmedReceipt.amount}.00*\nFine Status: ${c.fineSelected ? `✅ Paid with ₹${fineAmt} Fine` : '⚠️ Fine Deselected (EMI Only)'}\nUTR / Ref No: *${lastConfirmedReceipt.utr}*\n\n📎 _[Customer payment screenshot attached]_`;
         window.open(`https://api.whatsapp.com/send?phone=${companyWaPhone}&text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -2081,7 +2318,8 @@
             renderAdminAll();
             hideLoader(200);
 
-            const paidAmt = customPayOverride || (c.fineSelected ? (c.emi + FIXED_FINE) : c.emi);
+            const fineAmt = parseFloat(c.fine) || 500;
+            const paidAmt = customPayOverride || (c.fineSelected ? (c.emi + fineAmt) : c.emi);
             showCongratulationsModal(paidAmt, utrVal);
         }, 450);
     }
@@ -2111,7 +2349,8 @@
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
         const baseEmi = parseFloat(c.emi) || 1568;
-        const totalDue = c.fineSelected ? (baseEmi + FIXED_FINE) : baseEmi;
+        const fineAmt = parseFloat(c.fine) || 500;
+        const totalDue = c.fineSelected ? (baseEmi + fineAmt) : baseEmi;
 
         document.getElementById('legalPrintCustName').textContent = c.name;
         document.getElementById('legalPrintCustAddress').textContent = c.address;
@@ -2142,15 +2381,17 @@
         document.getElementById('printLoanId').textContent = c.loanId;
         document.getElementById('printCustPhone').textContent = c.phone;
         document.getElementById('printCustAddress').textContent = c.address;
+        document.getElementById('printLoanType').textContent = c.loanType || "Monthly";
         document.getElementById('printUpiId').textContent = systemConfig.upiId;
 
         const totalSanctioned = c.installments.reduce((s, i) => s + (parseFloat(i.amount)||0), 0);
         const totalCollected = c.installments.filter(i => i.status === 'Collected').reduce((s, i) => s + (parseFloat(i.amount)||0), 0);
-        const currentDue = customPayOverride || (c.fineSelected ? (c.emi + FIXED_FINE) : c.emi);
+        const fineAmt = parseFloat(c.fine) || 500;
+        const currentDue = customPayOverride || (c.fineSelected ? (c.emi + fineAmt) : c.emi);
 
         document.getElementById('printTotalSanctioned').textContent = `₹${totalSanctioned.toLocaleString('en-IN')}.00`;
         document.getElementById('printTotalCollected').textContent = `₹${totalCollected.toLocaleString('en-IN')}.00`;
-        document.getElementById('printFineStatus').textContent = c.fineSelected ? `₹500.00 (Included)` : `₹500.00 (Unpaid - CIBIL Warning)`;
+        document.getElementById('printFineStatus').textContent = c.fineSelected ? `₹${fineAmt}.00 (Included)` : `₹${fineAmt}.00 (Unpaid - CIBIL Warning)`;
         document.getElementById('printCurrentDue').textContent = `₹${currentDue.toLocaleString('en-IN')}.00`;
 
         document.getElementById('printUpiQrImg').src = document.getElementById('dynamicQrImg').src;
@@ -2187,7 +2428,8 @@
     function shareLinkWhatsApp() {
         const c = getActiveCustomer();
         const url = buildCustomerPortalUrl();
-        const payable = customPayOverride || (c.fineSelected ? (c.emi + FIXED_FINE) : c.emi);
+        const fineAmt = parseFloat(c.fine) || 500;
+        const payable = customPayOverride || (c.fineSelected ? (c.emi + fineAmt) : c.emi);
         let custPhone = c.phone.replace(/\D/g, '');
         if (custPhone.length === 10) custPhone = "91" + custPhone;
         const msg = `*${systemConfig.brandTitle} - OFFICIAL NOTICE*\n\nDear *${c.name}*,\nLoan ID: *${c.loanId}*\nCollection Agent: *${c.agentName || 'Chandan Das'}*\nPayable Amount: *₹${payable}.00*\n\n👉 *Tap this encrypted link to view your statement, pay via UPI & download SOA:*\n${url}`;
@@ -2203,9 +2445,10 @@
         if (e) e.preventDefault();
         if(customersDB.length === 0) return;
         const c = getActiveCustomer();
-        const payable = customPayOverride || (c.fineSelected ? (c.emi + FIXED_FINE) : c.emi);
+        const fineAmt = parseFloat(c.fine) || 500;
+        const payable = customPayOverride || (c.fineSelected ? (c.emi + fineAmt) : c.emi);
         const phoneClean = c.phone.replace(/\s+/g, '');
-        const smsText = `Dear ${c.name}, ${systemConfig.brandTitle} Loan (${c.loanId}) due is Rs.${payable}. Pay via UPI to ${systemConfig.upiId}. Unpaid bounce fine of Rs.500 impacts CIBIL score.`;
+        const smsText = `Dear ${c.name}, ${systemConfig.brandTitle} Loan (${c.loanId}) due is Rs.${payable}. Pay via UPI to ${systemConfig.upiId}. Unpaid bounce fine of Rs.${fineAmt} impacts CIBIL score.`;
         window.location.href = `sms:${phoneClean}?body=${encodeURIComponent(smsText)}`;
     }
 
@@ -2232,7 +2475,7 @@
                 showAdminScreen();
                 hideLoader(200);
                 showToast("🔓 Officer Workspace Unlocked!");
-                document.getElementById('agentPhoneInput').value = ""; // clear for security
+                document.getElementById('agentPhoneInput').value = ""; 
             }, 350);
         } else {
             alert("❌ Access Denied! Unregistered Mobile Number or PIN.");
@@ -2263,6 +2506,7 @@
     }
 
     function saveMemoryAndOpenDashboard() {
+        if(customersDB.length === 0) return;
         showLoader("Updating Dashboard...", "Applying changes to live notice");
         syncActiveCustomer();
         saveSystemConfig();
